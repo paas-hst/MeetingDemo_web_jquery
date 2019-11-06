@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>好视通云通信Web Demo</title>
+    <link href="./index.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="./HstRtcEngine-1.0.7.js"></script>
+</head>
+
+<body style="background-color: honeydew; padding: 0; margin: 0">
+    <div class="left">
+        <div style="height: 20%;" class="left-panel">
+            <div class="left-panel-layout">
+                <div style="width: 100%;" align="center">
+                    <button id="init-btn" class="btn">初始化</button>
+                    <input id="user-id" class="login-input"/>
+                    <button id="login-btn" class="btn">登录</button>
+                    <input id="group-id" class="login-input" />
+                    <button id="join-group-btn" class="btn">加入分组</button>
+                    <button id="leave-group-btn" class="btn">离开分组</button>
+                    <button id="exit-btn" class="btn">退出登录</button>
+                </div>
+            </div>
+        </div>
+        <!-- 分组用户列表 -->
+        <div style="height: 30%;" class="left-panel">                
+            <table id="group-users-tbl" width="100%" style="border-spacing: 0px">
+                <tr>
+                    <th valign='middle' width='55%'>User ID</th>
+                    <th valign='middle' width='15%'>Audio</th>
+                    <th valign='middle' width='15%'>Video</th>
+                    <th valign='middle' width='15%'>Share</th>
+                </tr>
+            </table>
+        </div>
+        <!-- 消息显示文本框 -->
+        <div style="height: 35%;">
+            <textarea id="all-msg-ta" wrap="hard" disabled=true></textarea>
+        </div>
+        <!-- 消息发送文本框 -->
+        <div style="height: 10%; background-color: cyan;">
+            <textarea id="msg-send-ta"></textarea>
+        </div>
+        <!-- 发送消息 -->
+        <div class="send-msg-panel">
+            <div class="left-panel-layout">
+                <div align="center" class="send-msg">
+                    <select id="msg-send-sel"></select>
+                    <button id="msg-send-btn">发送消息</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <div id="tabs" style="width: 100%; height: 5%; background-color:rgb(44,48,78);">
+            <button class="tab" id="tab-btn-0" style="color: white">音视频</button>
+            <button class="tab" id="tab-btn-1">屏幕共享</button>
+            <button class="tab" id="tab-btn-2">在线</button>
+            <div style="display:flex; align-items:center; height: 100%">
+                <span class="inner-title">好视通云通信WEB-DEMO</span>
+            </div>
+            
+        </div>
+        <div style="width: 100%; height: 95%;">
+            <!-- 音视频 -->
+            <div id="tab1" style="width:100%; height:100%; background-color: white;">
+                <div class="video-top">
+                    <div class="video-panel" max="false">
+                        <video autoplay id="video-panel-0" max="false" class="video-element"></video>
+                        <audio autoplay id="audio-0" style="visibility: hidden; widows: 0px; height: 0px;"></audio>
+                        <div class="overlay-user-label">
+                            <label id="user-label-0"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-0"></label>
+                        </div>
+                    </div>
+                    <div class="video-panel" max="false">
+                        <video autoplay  id="video-panel-1" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="user-label-1"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-1"></label>
+                        </div>
+                    </div>
+                    <div class="video-panel" max="false">
+                        <video autoplay  id="video-panel-2" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="user-label-2"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-2"></label>
+                        </div>
+                    </div>                        
+                    <div class="video-panel" max="false">
+                        <video autoplay  id="video-panel-3" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="user-label-3"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-3"></label>
+                        </div>
+                    </div>
+                    <div class="video-panel" max="false">
+                        <video autoplay  id="video-panel-4" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="user-label-4"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-4"></label>
+                        </div>
+                    </div>
+                    <div class="video-panel" max="false">
+                        <video autoplay  id="video-panel-5" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="user-label-5"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="video-label-5"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-bottom">
+                    <div class="dev-panel">
+                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                            <div align="center" style="width: 100%">
+                                <span>麦克风</span><br>
+                                <select id="mic-devs-sel" class="dev-sel"></select>
+                                <button id="mic-pub-btn" class="btn" style="margin-top:10px">开始广播</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dev-panel">
+                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                            <div align="center" style="width: 100%">
+                                <span>摄像头</span><br>
+                                <select id="cam-devs-sel" class="dev-sel"></select>
+                                <button id="cam-pub-btn" class="btn" style="margin-top:10px">开始广播</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dev-panel">
+                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                            <div align="center" style="width: 100%">
+                                <span>扬声器</span><br>
+                                <select id="spk-devs-sel" class="dev-sel"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 屏幕共享 -->
+            <div id="tab2" style="background-color:lightblue; height: 100%; width: 100%">
+                <div style="height: 90%; width: 100%">
+                    <div class="screen-share-panel" max="false">
+                        <video autoplay  id="screen-share-panel-0" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="share-user-label-0"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="share-video-label-0"></label>
+                        </div>
+                    </div>
+                    <div class="screen-share-panel" max="false">
+                        <video autoplay  id="screen-share-panel-1" max="false" class="video-element"></video>
+                        <div class="overlay-user-label">
+                            <label id="share-user-label-1"></label>
+                        </div>
+                        <div class="overlay-video-label">
+                            <label id="share-video-label-1"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-share-ctrl-panel">
+                    <div id="screen-btn-div">
+                        <button id="screen-share-btn">开始共享</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 在线 -->
+            <div id="tab3" class="online-tab">
+                <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                <div id="online-users-div">
+                    <table id="online-users-tbl" width="100%" style="border-spacing: 0px">
+                        <tr>
+                            <th width='50%'>User ID</th>
+                            <th width='20%'>状态</th>
+                            <th width='30%'>操作</th>
+                        </tr>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </div >
+    </div>
+</body>
+<script src="./index.js"></script>
+</html>

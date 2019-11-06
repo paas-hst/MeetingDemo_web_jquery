@@ -1,0 +1,356 @@
+
+.left {
+    float: left;
+    width: 20%;
+    height: 800px;
+    background-color: white
+}
+
+.right{
+    float:right;
+    width:80%;
+    background-color: white;
+    height: 800px;
+}
+
+.tab-content{
+    width:100%; height:100%;
+}
+
+.tab {
+    width: 100px; 
+    height:100%; 
+    margin: 0px; 
+    padding: 0px; 
+    float: left;
+    box-sizing: border-box;
+    border: 1px solid rgb(44,48,78);
+    background-color:white;
+    color: black
+}
+
+.inner-title {
+    width: 100%; 
+    text-align: right; 
+    color: white; 
+    padding-right:10px
+}
+
+.dev-sel {
+    width: 60%; 
+    height: 30px; 
+    margin-top:10px
+}
+
+.dev-panel {
+    float: left;
+    width: 33.33%;
+    height: 100%;
+    border-left: 1px solid rgb(216,216,216);
+    border-top: 1px solid rgb(216,216,216);
+    border-bottom: 1px solid rgb(216,216,216);
+    box-sizing: border-box;
+    background-color:white
+}
+
+.btn {
+    height: 40px; 
+    width: 60%; 
+    box-sizing: border-box; 
+    background-color:rgb(106,125,254);
+    color:white; 
+    border: 0px solid rgb(65, 68, 85);
+    border-radius: 3px;
+    margin-top: 5px; 
+    margin-bottom: 5px;
+}
+
+.screen-share-ctrl-panel {
+    height: 10%; 
+    width: 100%; 
+    background-color:white; 
+    position: relative;
+    box-sizing: border-box;
+    border-left: 1px solid rgb(216,216,216);
+    border-top: 1px solid rgb(216,216,216);
+    border-bottom: 1px solid rgb(216,216,216);
+}
+
+.login-input {
+    width: 60%; 
+    line-height: 2; 
+    box-sizing: border-box; 
+    text-align: center;
+    margin-top: 5px; 
+    margin-bottom: 5px;
+}
+
+.left-panel {
+    background-color:white; 
+    border: 1px solid rgb(216,216,216);
+    box-sizing: border-box;
+}
+
+.max-panel {
+    position: absolute;    
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh
+}
+
+.online-tab {
+    background-color:rgb(232, 240, 254); 
+    height: 100%; 
+    width: 100%;
+    box-sizing: border-box; 
+    border: 1px solid rgb(216,216,216);
+}
+
+.msg-tab {
+    background-color:rgb(232, 240, 254); 
+    display: flex; 
+    justify-content: center; 
+    align-items:center; 
+    height: 100%; 
+    width: 100%;
+    box-sizing: border-box; 
+    border: 1px solid rgb(216,216,216);
+}
+
+.send-msg {
+    width: 100%; 
+    display: flex; 
+    justify-content: center; 
+    align-items:center; 
+}
+
+#msg-show-ta {
+    height:380px; 
+    width: 40%; 
+    box-sizing: border-box;  
+    background-color: white;
+}
+
+#msg-send-ta {
+    height: 100%; 
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+#msg-send-sel {
+    height: 30px; 
+    width: 70%; 
+    display: block; 
+    box-sizing: border-box
+}
+
+#msg-send-btn {
+    height:30px; 
+    width: 28%; 
+    margin-left: 1%;
+    background-color:rgb(106,125,254); 
+    border: 1px solid rgb(106,125,254); 
+    box-sizing: border-box;
+    color: white;
+    border-radius: 3px;
+}
+
+#screen-btn-div {
+    width: 150px; 
+    height: 40px; 
+    position:absolute; 
+    top:50%; 
+    left: 50%; 
+    margin-top: -20px; 
+    margin-left: -75px
+}
+
+#screen-share-btn {
+    width:150px; 
+    height: 40px;
+    box-sizing: border-box; 
+    background-color: rgb(106,125,254); 
+    border: 0px solid rgb(106,125,254);
+    color:white
+}
+
+#online-users-div {
+    width:400px; 
+    height: 80%; 
+    margin: 0px auto; 
+    border:1px solid rgb(216,216,216); 
+    background-color: white
+}
+
+.left-panel-layout {
+    display:flex; 
+    align-items:center; 
+    justify-content: center; 
+    height: 100%;
+}
+
+#sys-msg-ta {
+    width: 100%; 
+    height: 100%; 
+    box-sizing: border-box; 
+    background-color: white
+}
+
+.invite-btn {
+    background-color: rgb(106,125,254);
+    border: 1px solid rgb(106,125,254); 
+    box-sizing: border-box;
+    color: white;
+    width: 40%;
+    height: 80%;
+    padding: 0px;
+    border-radius: 3px;
+}
+
+#online-users-tbl th {
+    background-color: rgb(106,125,254);
+    color: white;
+    border-style: none none none solid;
+    border-width: 0px 0px 0px 1px;  
+    box-sizing: border-box;
+    height: 35px;
+}
+
+#group-users-tbl th {
+    background-color: white;
+    color: black;
+    border-color: rgb(216,216,216);
+    border-style: solid;
+    border-width: 0px 1px 1px 0px;  
+    box-sizing: border-box;
+    height: 30px;
+    font-size: 10px;
+    font-weight: normal;
+    font-family: "Microsoft Yahei";
+}
+
+#group-users-tbl td {
+    font-size: 10px;
+    font-weight: normal;
+    font-family: "Microsoft Yahei";
+}
+
+.user-line {
+    background-color: white;
+    height: 30px;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+    border-width: 0px 0px 1px 0px;
+    border-style: hidden hidden dashed hidden;
+    border-color: rgb(216,216,216);
+}
+
+.pub-btn {
+    background-color:green; 
+    height:16px; 
+    width:16px; 
+    border-radius:8px;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+.unpub-btn {
+    background-color:rgb(220,220,220); 
+    height:16px; 
+    width:16px; 
+    border-radius:8px;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+#all-msg-ta {
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: auto
+}
+
+.send-msg-panel {
+    height: 5%; 
+    border-style: none none solid none;
+    border-width: 1px; 
+    border-color: rgb(216,216,216);
+    box-sizing: border-box;
+}
+
+.video-top {
+    float: left;
+    width: 100%;
+    height: 80%;
+    background-color: white
+}
+
+.video-bottom {
+    float: left;
+    width: 100%;
+    height: 20%;
+    margin: 0px;
+    background-color: white
+}
+
+.video-panel {
+    position: relative;
+    width:33.33%; 
+    height:50%; 
+    background-color:black; 
+    /* border: 1px solid white; */
+    box-sizing: border-box;
+    float: left;
+}
+
+.video-element {
+    position: absolute;
+    float: left; 
+    width: 100%; 
+    height: 100%; 
+    background-color:black; 
+    border: 1px solid white;
+    box-sizing: border-box;
+}
+
+.overlay-user-label {
+    position: absolute;
+    float: left; 
+    left: 20px; 
+    top: 10px; 
+    z-index: 1; 
+    width: 100px; 
+    height: 20px; 
+    background-color:rbga(0,0,0,0.5); 
+    color:white
+}
+
+.overlay-video-label {
+    position: absolute;; 
+    float: right; 
+    right: 20px; 
+    top: 10px;
+    z-index: 1; 
+    width: 260px; 
+    height: 20px; 
+    /* background-color:rbga(0,0,0,0.5);  */
+    color:white;
+    text-align: right;
+}
+
+.screen-share-panel {
+    position: relative;
+    width:50%; 
+    height:100%; 
+    background-color:black; 
+    /* border: 1px solid white; */
+    box-sizing: border-box;
+    float: left;
+}
