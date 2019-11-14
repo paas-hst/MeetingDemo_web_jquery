@@ -24,6 +24,7 @@ $(function(){
 
     updateGroupUserList();
     updateAppState(0);
+    updateVideoPanelLayout();
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +86,11 @@ let hstRtcEngine = new HstRtcEngine();
 ////////////////////////////////////////////////////////////////////////////////
 // 控件行为定义
 ////////////////////////////////////////////////////////////////////////////////
+
+// 窗口大小变化的时候，需要刷新VideoPanel布局
+$(window).resize(function(){
+    updateVideoPanelLayout();
+});
 
 // 鼠标双击视频窗口和屏幕共享窗口最大化显示处理
 function toggleMaxPanel(){
@@ -214,6 +220,8 @@ function onLeaveGroup() {
     updateGroupUserList();
 
     refreshDataAndUI();
+
+    updateVideoPanelLayout();
 }
 
 // 鼠标点击“离开分组”按钮处理
@@ -304,7 +312,7 @@ $('#screen-share-btn').click(function(){
 
         screenPanel.used = true;
         screenPanel.userId = window.userId;
-        screenPanel.shareId = "screen-share";
+        screenPanel.shareId = "0";
         
         hstRtcEngine.setLocalScreenShareRender(screenPanel.handle);
         hstRtcEngine.startScreenShare();
@@ -389,6 +397,8 @@ $('#cam-pub-btn').click(function(){
 
         displayStreamStats(newVideoPanel);
     }
+
+    updateVideoPanelLayout();
 });
 
 // 点击“发送消息”按钮处理
@@ -485,7 +495,6 @@ hstRtcEngine.on("onUnPublishMedia", function(data) {
         groupUserList.get(data.userId).pubShare = false;
         groupUserList.get(data.userId).shareId = "";
 
-        console.log("#######################")
         hstRtcEngine.stopReceiveScreenShare(data.userId, data.mediaId)
         .then(() => {
             addSystemMsg("Stop receive remote screen share!");
@@ -526,6 +535,7 @@ hstRtcEngine.on("onUnPublishMedia", function(data) {
                     break;
                 }
             }
+            updateVideoPanelLayout();
         })
         .catch(()=>{
             addSystemMsg("Stop receive remote audio failed!");
@@ -552,6 +562,7 @@ hstRtcEngine.on("onUnPublishMedia", function(data) {
                     break;
                 }
             }
+            updateVideoPanelLayout();
         })
         .catch(() => {
             addSystemMsg("Stop receive remote video failed!");
@@ -623,6 +634,8 @@ hstRtcEngine.on('onRemoteMediaAdd', function (params) {
         displayStreamStats(videoPanel);
 
         hstRtcEngine.setStreamRender(videoPanel.handle, params.streamId);
+
+        updateVideoPanelLayout();
     } else if (params.mediaType == 2){ // 视频
         // 如果已经在接收此用户的音频，streamId相同，不用重复设置render
         let videoPanel = getVideoPanelWithStreamId(params.streamId);
@@ -646,6 +659,8 @@ hstRtcEngine.on('onRemoteMediaAdd', function (params) {
         displayStreamStats(videoPanel);
 
         hstRtcEngine.setStreamRender(videoPanel.handle, params.streamId);
+
+        updateVideoPanelLayout();
     }
 });
 
@@ -1049,7 +1064,6 @@ function displayScreenShareStats(panel) {
             }
             displayScreenShareStats(panel);
         } else {
-            console.log("##### pane is not used!")
             $('#share-video-label-' + panel.index).html("");
         }
     }, 1000);// 定时调用接口获取统计数据    
@@ -1075,7 +1089,6 @@ function displayStreamStats(panel){
             }
             displayStreamStats(panel);
         } else {
-            console.log("##### pane is not used!")
             $('#video-label-' + panel.index).html("");
         }
     }, 1000);// 定时调用接口获取统计数据
@@ -1163,5 +1176,178 @@ function updateGroupUserList(){
         if (user.userId !== window.userId) {
             sendMsgSel.append("<option value='" + user.userId + "'>" + user.userId + "</option");
         }
+    }
+}
+
+// 计算不同布局下VideoPanel的大小和位置
+function calcPanelPosAndSize(containerSize, panelCount) {
+    let panelParams = [];
+    
+    switch (panelCount) {
+        case 0:
+            break; // do nothing
+        case 1:
+            panelParams.push({
+                pos:{
+                    left: 0, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width, 
+                    height: containerSize.height
+                }
+            });
+            break;
+        case 2:
+            panelParams.push({
+                pos:{
+                    left: 0, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width / 2, 
+                    height: containerSize.height
+                }
+            });
+            panelParams.push({
+                pos:{
+                    left: containerSize.width / 2, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width / 2, 
+                    height: containerSize.height
+                }
+            });
+            break;
+
+        case 3: // 左1右2
+            panelParams.push({
+                pos:{
+                    left: 0, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width / 2, 
+                    height: containerSize.height
+                }
+            });
+            panelParams.push({
+                pos:{
+                    left: containerSize.width / 2, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width / 2, 
+                    height: containerSize.height / 2
+                }
+            });
+            panelParams.push({
+                pos:{
+                    left: containerSize.width / 2, 
+                    top: containerSize.height / 2
+                }, 
+                size: {
+                    width: containerSize.width / 2, 
+                    height: containerSize.height / 2
+                }
+            });
+            break;
+
+        case 4: // 四宫格（2行2列）
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 2; j++) {
+                    panelParams.push({
+                        pos:{
+                            left: j * containerSize.width / 2, 
+                            top: i * containerSize.height / 2
+                        }, 
+                        size: {
+                            width: containerSize.width / 2, 
+                            height: containerSize.height / 2
+                        }
+                    });
+                }
+            }
+            break;
+
+        case 5: // 上1下4
+            panelParams.push({
+                pos:{
+                    left: 0, 
+                    top: 0
+                }, 
+                size: {
+                    width: containerSize.width, 
+                    height: containerSize.height * 2 / 3
+                }
+            });
+
+            for (let i = 0; i < 4; i++) {
+                panelParams.push({
+                    pos:{
+                        left: i * containerSize.width / 4, 
+                        top: containerSize.height * 2 / 3
+                    }, 
+                    size: {
+                        width: containerSize.width / 4, 
+                        height: containerSize.height / 3
+                    }
+                });     
+            }
+            break;
+
+        case 6: // 六宫格（2行3列）
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 3; j++) {
+                    panelParams.push({
+                        pos:{
+                            left: j * containerSize.width / 3, 
+                            top: i * containerSize.height / 2
+                        }, 
+                        size: {
+                            width: containerSize.width / 3, 
+                            height: containerSize.height / 2
+                        }
+                    });
+                }
+            }
+            break;
+
+        default:
+            console.error("Invalid params!");
+            break;
+    }
+
+    return panelParams;
+}
+
+// 更新视频显示布局
+function updateVideoPanelLayout() {
+    // Container size 
+    let containerSize = {width: $('#video-top-panel').width(), height: $('#video-top-panel').height()};
+
+    // Video panel count
+    let panelCount = 0;
+    for (const panel of videoPanels) {
+        if (panel.used) {
+            panelCount++;
+        }
+    }
+    // Calculate video panel size and position
+    let panelParams = calcPanelPosAndSize(containerSize, panelCount);
+    
+    let paramIndex = 0;
+    for (let panel of videoPanels) {
+        if (panel.used) {
+            $('#video-panel-wrapper-' + panel.index).css("display", "inline");
+            $('#video-panel-wrapper-' + panel.index).css("left", panelParams[paramIndex].pos.left);
+            $('#video-panel-wrapper-' + panel.index).css("top", panelParams[paramIndex].pos.top);
+            $('#video-panel-wrapper-' + panel.index).css("width", panelParams[paramIndex].size.width);
+            $('#video-panel-wrapper-' + panel.index).css("height", panelParams[paramIndex].size.height);
+            paramIndex++;
+        } else {
+            $('#video-panel-wrapper-' + panel.index).css("display", "none");
+        }    
     }
 }
