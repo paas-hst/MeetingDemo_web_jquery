@@ -61,10 +61,10 @@
             <button class="tab" id="tab-btn-0" style="color: white">音视频</button>
             <button class="tab" id="tab-btn-1">屏幕共享</button>
             <button class="tab" id="tab-btn-2">在线</button>
+            <button class="tab" id="tab-btn-3">设置</button>
             <div style="display:flex; align-items:center; height: 100%">
                 <span class="inner-title">好视通云通信WEB-DEMO</span>
             </div>
-            
         </div>
         <div style="width: 100%; height: 95%;">
             <!-- 音视频 -->
@@ -129,26 +129,11 @@
                     <div class="dev-panel">
                         <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
                             <div align="center" style="width: 100%">
-                                <span>麦克风</span><br>
-                                <select id="mic-devs-sel" class="dev-sel"></select>
-                                <button id="mic-pub-btn" class="btn" style="margin-top:10px">开始广播</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dev-panel">
-                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
-                            <div align="center" style="width: 100%">
-                                <span>摄像头</span><br>
-                                <select id="cam-devs-sel" class="dev-sel"></select>
-                                <button id="cam-pub-btn" class="btn" style="margin-top:10px">开始广播</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dev-panel">
-                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
-                            <div align="center" style="width: 100%">
-                                <span>扬声器</span><br>
-                                <select id="spk-devs-sel" class="dev-sel"></select>
+                                <button id="mic-pub-btn" class="pub-btn" disabled="disabled">麦克风</button>
+                                <button id="cam-pub-btn" class="pub-btn" disabled="disabled">摄像头</button>
+                                <div id="cam-menu" style="display: none; position:absolute; background-color:azure;">
+                                    <table id="cam-menu-table" align="left"></table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,22 +163,161 @@
                 </div>
                 <div class="screen-share-ctrl-panel">
                     <div id="screen-btn-div">
-                        <button id="screen-share-btn">开始共享</button>
+                        <button id="screen-share-btn" disabled="disabled">开始共享</button>
                     </div>
                 </div>
             </div>
             <!-- 在线 -->
             <div id="tab3" class="online-tab">
                 <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
-                <div id="online-users-div">
-                    <table id="online-users-tbl" width="100%" style="border-spacing: 0px">
-                        <tr>
-                            <th width='50%'>User ID</th>
-                            <th width='20%'>状态</th>
-                            <th width='30%'>操作</th>
-                        </tr>
-                    </table>
+                    <div id="online-users-div">
+                        <table id="online-users-tbl" width="100%" style="border-spacing: 0px">
+                            <tr>
+                                <th width='50%'>User ID</th>
+                                <th width='20%'>状态</th>
+                                <th width='30%'>操作</th>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
+            </div>
+            <!-- 设置 -->
+            <div id="tab4" class="setting-tab">
+                <div >
+                    <!-- 应用设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;应用</span>
+                        <div>
+                            <input type="checkbox" class="setting-checkbox" id="app-cfg-cbx" />
+                        </div>
+                    </div>
+                    <div class="setting-panel" id="app-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">App ID:</div>
+                            <div class="setting-line-margin">
+                                <input type="text" class="text-input" disabled="true" id="app-id-input" />
+                            </div>
+                        </div>
+                        <div style="display: flex;">
+                            <div class="setting-label">Token:</div>
+                            <div class="setting-line-margin">
+                                <input type="text" class="text-input" disabled="true" id="token-input" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 服务器设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;服务器</span>
+                        <div>
+                            <input type="checkbox" class="setting-checkbox" id="server-cfg-cbx" />
+                        </div>
+                    </div>
+                    <div class="setting-panel" id="server-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">Server Address:</div>
+                            <div class="setting-line-margin">
+                                <input type="text" class="text-input" disabled="true" id="server-addr-input" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 音频设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;音频</span>
+                    </div>
+                    <div class="setting-panel" id="audio-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">麦克风:</div>
+                            <div class="setting-line-margin">
+                                <select id="mic-devs-sel" class="dev-sel"></select>
+                            </div>
+                        </div>
+                        <div style="display: flex; ">
+                            <div class="setting-label">扬声器:</div>
+                            <div class="setting-line-margin">
+                                <select id="spk-devs-sel" class="dev-sel"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 视频设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;视频</span>
+                        <div>
+                            <input type="checkbox" class="setting-checkbox" id="video-cbx" />
+                        </div>
+                    </div>
+                    <div class="setting-panel" id="video-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">分辨率:</div>
+                            <div class="setting-line-margin">
+                                <select id="video-resolution-sel" class="dev-sel" disabled="disabled">
+                                    <option value="320*240">320*240</option>
+                                    <option value="640*480">640*480</option>
+                                    <option value="1280*720">1280*720</option>
+                                    <option value="1920*1080">1920*1080</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; ">
+                            <div class="setting-label">帧率:</div>
+                            <div class="setting-line-margin">
+                                <input id="video-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
+                            </div>
+                            <div class="slider-text-block">
+                                <span id="video-framerate-text" class="slider-value-text">&nbsp;</span>
+                                <span>fps</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; ">
+                            <div class="setting-label">码率:</div>
+                            <div class="setting-line-margin">
+                                <input id="video-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
+                            </div>
+                            <div class="slider-text-block">
+                                <span id="video-bitrate-text" class="slider-value-text">&nbsp;</span>
+                                <span>kbps</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 屏幕共享设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;屏幕共享</span>
+                        <div>
+                            <input type="checkbox" class="setting-checkbox" id="share-cbx" />
+                        </div>
+                    </div>
+                    <div class="setting-panel" id="share-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">分辨率:</div>
+                            <div class="setting-line-margin">
+                                <select id="share-resolution-sel" class="dev-sel" disabled="disabled">
+                                    <option value="320*240">320*240</option>
+                                    <option value="640*480">640*480</option>
+                                    <option value="1280*720">1280*720</option>
+                                    <option value="1920*1080">1920*1080</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; ">
+                            <div class="setting-label">帧率:</div>
+                            <div class="setting-line-margin">
+                                <input id="share-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
+                            </div>
+                            <div class="slider-text-block">
+                                <span id="share-framerate-text" class="slider-value-text">&nbsp;</span>
+                                <span>fps</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; ">
+                            <div class="setting-label">码率:</div>
+                            <div class="setting-line-margin">
+                                <input id="share-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
+                            </div>
+                            <div class="slider-text-block">
+                                <span id="share-bitrate-text" class="slider-value-text">&nbsp;</span>
+                                <span>kbps</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div >

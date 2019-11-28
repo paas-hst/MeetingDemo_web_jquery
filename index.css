@@ -36,15 +36,9 @@
     padding-right:10px
 }
 
-.dev-sel {
-    width: 60%; 
-    height: 30px; 
-    margin-top:10px
-}
-
 .dev-panel {
     float: left;
-    width: 33.33%;
+    width: 100%;
     height: 100%;
     border-left: 1px solid rgb(216,216,216);
     border-top: 1px solid rgb(216,216,216);
@@ -63,6 +57,18 @@
     border-radius: 3px;
     margin-top: 5px; 
     margin-bottom: 5px;
+}
+
+.pub-btn {
+    height: 60px; 
+    width: 60px; 
+    box-sizing: border-box; 
+    background-color:rgb(193,193,193);
+    color:white; 
+    border: 0px solid rgb(65, 68, 85);
+    border-radius: 30px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .screen-share-ctrl-panel {
@@ -171,7 +177,7 @@
     width:150px; 
     height: 40px;
     box-sizing: border-box; 
-    background-color: rgb(106,125,254); 
+    background-color: rgb(193,193,193); 
     border: 0px solid rgb(106,125,254);
     color:white
 }
@@ -199,8 +205,8 @@
 }
 
 .invite-btn {
-    background-color: rgb(106,125,254);
-    border: 1px solid rgb(106,125,254); 
+    background-color: rgb(193,193,193);
+    border: 1px solid;
     box-sizing: border-box;
     color: white;
     width: 40%;
@@ -249,7 +255,7 @@
     border-color: rgb(216,216,216);
 }
 
-.pub-btn {
+.pub-state-btn {
     background-color:green; 
     height:16px; 
     width:16px; 
@@ -259,7 +265,7 @@
     margin: 0px;
 }
 
-.unpub-btn {
+.unpub-state-btn {
     background-color:rgb(220,220,220); 
     height:16px; 
     width:16px; 
@@ -290,13 +296,13 @@
     background-color:black;
     float: left;
     width: 100%;
-    height: 85%;
+    height: calc(100% - 80px);
 }
 
 .video-bottom {
     float: left;
     width: 100%;
-    height: 15%;
+    height: 80px;
     margin: 0px;
     background-color: white
 }
@@ -354,4 +360,87 @@
     /* border: 1px solid white; */
     box-sizing: border-box;
     float: left;
+}
+
+
+.setting-tab {
+    background-color:rgb(232, 240, 254); 
+    height: 100%; 
+    width: 100%;
+    box-sizing: border-box; 
+    border: 1px solid rgb(216,216,216);
+}
+
+.setting-panel {
+    width: 720px;
+    background-color: white;
+    margin: 0 auto;
+}
+
+.setting-panel-title {
+    display:flex;
+    justify-content: space-between;
+    width: 720px;
+    height: 30px;
+    line-height: 30px;
+    background-color: rgb(106,125,254);
+    margin: 0 auto;
+    margin-top: 20px;
+    color: white;
+}
+
+.text-input {
+    width: 400px;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+.dev-sel {
+    width: 400px; 
+    height: 30px; 
+    /* margin-top:10px */
+}
+
+.setting-label {
+    width: 150px;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-right: 10px;
+    text-align: right;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.slider-value-text {
+    width: 50px; 
+    display: inline-block;
+    text-align: right;
+}
+
+.slider-text-block {
+    height: 30px; 
+    line-height: 30px; 
+    display: table-cell; 
+    vertical-align: middle; 
+    margin-top: 10px;
+}
+
+.setting-line-margin {
+    margin-top: 10px; 
+    margin-bottom: 10px;
+}
+
+.setting-checkbox {
+    height: 16px; 
+    width: 16px; 
+    margin-right: 20px; 
+    box-sizing: border-box; 
+    margin-top: 7px;
+    background-color: white;
+}
+
+.cam-menu-cbx {
+    background-color: white;
 }
