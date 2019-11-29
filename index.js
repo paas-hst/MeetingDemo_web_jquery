@@ -227,7 +227,6 @@ $(window).resize(function(){
 
 // 鼠标双击视频窗口和屏幕共享窗口最大化显示处理
 function toggleMaxPanel(){
-    
     if ($(this).attr("max") === "false"){
         $(this).attr("style", "position: absolute; left: 0; top: 0; z-index: 9999; width: 100vw; height: 100vh");
         $(this).attr("max", "true");
@@ -255,20 +254,19 @@ $("#init-btn").click(function () {
 // 鼠标点击“登录”按钮处理
 $('#login-btn').click(function () {
     let inputUserId = document.getElementById('user-id').value
-    let loginOpt = {
+    let options = {
         appId: useUserDefineApp ? userDefineAppId : defaultAppId,
         token: useUserDefineApp ? userDefineToken : defaultToken,
         companyId: "",
-        userId: inputUserId
+        userId: inputUserId,
+        forceLogin: false
     }
-    
-    hstRtcEngine.login(loginOpt)
+    hstRtcEngine.login(options)
     .then(() => {
         window.userId = inputUserId;
         // 登录成功后，应立即获取全量在线用户列表，后续服务器只会通知增量在线用户
         getOnlineUserList();
         updateAppState(2);
-
         addSystemMsg("Login success.");
     })
     .catch (() => {
@@ -301,59 +299,11 @@ $("#exit-btn").click(function () {
     hstRtcEngine.destroy();    
 });
 
-function doJoinGroup(groupId) {
-    hstRtcEngine.joinGroup(groupId)
-    .then(()=> {
-        addSystemMsg('Join group ' + groupId + ' success.');
-        window.groupId = groupId;
-        let userInfo = {
-            userId: window.userId,
-            pubAudio: false,
-            pubVideo: false,
-            pubShare: false,
-            audioId: "",
-            videoId: new Set(),
-            shareId: ""
-        };
-        groupUserList.set(window.userId, userInfo);
-        updateGroupUserList();
-        updateAppState(3);
-
-        $('#mic-pub-btn').removeAttr("disabled");
-        $('#cam-pub-btn').removeAttr("disabled");
-        $('#screen-share-btn').removeAttr("disabled");
-
-        $('#mic-pub-btn').css("background-color", "rgb(106,125,254)");
-        $('#cam-pub-btn').css("background-color", "rgb(106,125,254)");
-        $('#screen-share-btn').css("background-color", "rgb(106,125,254)");
-
-        $('.invite-btn').removeAttr("disabled");
-        $('.invite-btn').css("background-color", "rgb(106,125,254)");
-    })
-    .catch(() => {
-        addSystemMsg('Join group failed!')
-    })
-}
-
 // 鼠标点击“加入分组”按钮处理
 $('#join-group-btn').click(function () {
     let groupId = document.getElementById('group-id').value;
     doJoinGroup(groupId);
 });
-
-function doLeaveGroup() {
-    onLeaveGroup(); // 依赖于groupId，必须在leaveGroup前调用
-    
-    hstRtcEngine.leaveGroup()
-    .then(function(){
-        addSystemMsg("Leave group success.");    
-    })
-    .catch(function(){
-        addSystemMsg("Leave group failed!");
-    });
-    
-    updateAppState(2);
-}
 
 // 鼠标点击“离开分组”按钮处理
 $("#leave-group-btn").click(function () {
@@ -497,9 +447,13 @@ $('#msg-send-btn').click(function(){
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-// 订阅通知处理
+// 订阅事件
 ////////////////////////////////////////////////////////////////////////////////
 
+// WebSocket连接断开，有可能是异常断开，也有可能是本端主动断开
+hstRtcEngine.on('onWebSocketClosed', function(data) {
+    addSystemMsg("WebSocket连接断开!");
+});
 
 // 远端广播媒体通知
 hstRtcEngine.on('onPublishMedia', function (data) {
@@ -872,23 +826,23 @@ hstRtcEngine.on('onCommingInvite', function(param) {
     let result = confirm("是否接受来自分组ID为" + param.groupId + ", 用户ID为" + param.userId + "的邀请？");
     if (result) { // 接受邀请
         hstRtcEngine.replyInvite({seqId: param.seqId, groupId: param.groupId, operation: 0, extendInfo: ""});
-        if (param.groupId) {
-            if (window.groupId) { // 已经在分组中
-                if (param.groupId !== window.groupId) {
-                    // 先退出已有分组
-                    doLeaveGroup();
-                    // 由于无法得到doLeaveGroup的异步回调结果，这里Sleep几秒钟
-                    sleep(1000).then(function(){
-                        doJoinGroup(param.groupId);
-                    });
-                } else {
-                    alert("您已经在分组 " + window.groupId + " 中！");
-                }
-            } else { // 没在分组中
-                doJoinGroup(param.groupId);
-            }
-        } else {
+        if (!param.groupId) {
             alert("无效的Group ID！");
+            return;
+        }
+        if (window.groupId) { // 已经在分组中
+            if (param.groupId === window.groupId) {
+                alert("您已经在分组 " + window.groupId + " 中！");
+                return;
+            }
+            // 先退出已有分组
+            doLeaveGroup();
+            // 由于无法得到doLeaveGroup的异步回调结果，这里Sleep几秒钟
+            sleep(1000).then(function(){
+                doJoinGroup(param.groupId);
+            });
+        } else { // 没在分组中，直接加入分组
+            doJoinGroup(param.groupId);
         }
     } else { // 拒绝邀请
         hstRtcEngine.replyInvite({seqId: param.seqId, groupId: param.groupId, operation: 1, extendInfo: ""});
@@ -1814,4 +1768,52 @@ function storeSettings() {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function doJoinGroup(groupId) {
+    hstRtcEngine.joinGroup(groupId)
+    .then(()=> {
+        addSystemMsg('Join group ' + groupId + ' success.');
+        window.groupId = groupId;
+        let userInfo = {
+            userId: window.userId,
+            pubAudio: false,
+            pubVideo: false,
+            pubShare: false,
+            audioId: "",
+            videoId: new Set(),
+            shareId: ""
+        };
+        groupUserList.set(window.userId, userInfo);
+        updateGroupUserList();
+        updateAppState(3);
+
+        $('#mic-pub-btn').removeAttr("disabled");
+        $('#cam-pub-btn').removeAttr("disabled");
+        $('#screen-share-btn').removeAttr("disabled");
+
+        $('#mic-pub-btn').css("background-color", "rgb(106,125,254)");
+        $('#cam-pub-btn').css("background-color", "rgb(106,125,254)");
+        $('#screen-share-btn').css("background-color", "rgb(106,125,254)");
+
+        $('.invite-btn').removeAttr("disabled");
+        $('.invite-btn').css("background-color", "rgb(106,125,254)");
+    })
+    .catch(() => {
+        addSystemMsg('Join group failed!')
+    })
+}
+
+function doLeaveGroup() {
+    onLeaveGroup(); // 依赖于groupId，必须在leaveGroup前调用
+    
+    hstRtcEngine.leaveGroup()
+    .then(function(){
+        addSystemMsg("Leave group success.");    
+    })
+    .catch(function(){
+        addSystemMsg("Leave group failed!");
+    });
+    
+    updateAppState(2);
 }
