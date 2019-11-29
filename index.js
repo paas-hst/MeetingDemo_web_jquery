@@ -54,6 +54,9 @@ let camDevList = new Array();
 let micDevList = new Array();
 let spkDevList = new Array();
 
+// App state
+let curAppState = 0;
+
 ////////////////////////////////////////////////////////////////////////////////
 // 配置数据
 ////////////////////////////////////////////////////////////////////////////////
@@ -907,7 +910,8 @@ hstRtcEngine.on('onInviteReply', function(param){
 
 // 根据应用状态控制控件的显示
 function updateAppState(state) {
-    switch (state) {
+    curAppState = state;
+    switch (curAppState) {
         case 0: // NONE
             $('#init-btn').css('display', 'inline');
             $('#user-id').css('display', 'none');
@@ -986,6 +990,12 @@ function updateOnlineUserList(){
             $('#online-users-tbl').append("<td valign='middle' class='user-line'></td>");
         }
         $('#online-users-tbl').append("</tr>");
+    }
+
+    // 如果当前已经在分组中，要同步改变邀请按钮状态
+    if (curAppState === 3) {
+        $('.invite-btn').removeAttr("disabled");
+        $('.invite-btn').css("background-color", "rgb(106,125,254)");
     }
 }
 
