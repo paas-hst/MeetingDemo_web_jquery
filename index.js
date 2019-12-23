@@ -61,11 +61,14 @@ let curAppState = 0;
 // 配置数据
 ////////////////////////////////////////////////////////////////////////////////
 // 应用配置
-let defaultAppId = '7a02a8217cd541f990152ea666ee24bf';
-let defaultToken = '001Sx04XAA406DvYyD8J3oEh/eSZFnogbLaFnwlXozD6QfHszwvHlCNRVj3wjIxldlRYRG28cGFdK9xgku3fhdMKY2pB3j1It4Omq8Quxx4xFH/2h3MbrWmsVCjh/N1cfsx';
+let defaultAppId = '925aa51ebf829d49fc98b2fca5d963bc';
+let defaultAppSecret = 'd52be60bb810d17e';
 let useUserDefineApp = false;
 let userDefineAppId = "";
-let userDefineToken = "";
+let userDefineAppSecret = "";
+
+// 登录所需的Token
+let loginToken = "";
 
 // 服务器配置
 let userDefineServerAddr = "";
@@ -122,6 +125,8 @@ $(function(){
     updateGroupUserList();
     updateAppState(0);
     updateVideoPanelLayout();
+
+    fetchLoginToken();
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,11 +135,11 @@ $(function(){
 $('#app-cfg-cbx').click(function(){
     if ($(this).is(':checked')) {
         $('#app-id-input').removeAttr("disabled");
-        $('#token-input').removeAttr("disabled");
+        $('#app-secret-input').removeAttr("disabled");
         useUserDefineApp = true;
     } else {
         $('#app-id-input').attr("disabled", "disabled");
-        $('#token-input').attr("disabled", "disabled");
+        $('#app-secret-input').attr("disabled", "disabled");
         useUserDefineApp = false;
     }
     storeSettings();
@@ -210,13 +215,32 @@ $('#app-id-input').change(function(){
     storeSettings();
 });
 
-$('#token-input').change(function(){
-    userDefineToken = $(this).val();
+$('#app-secret-input').change(function(){
+    userDefineAppSecret = $(this).val();
     storeSettings();
 });
 
 $('#server-addr-input').change(function(){
     userDefineServerAddr = $(this).val();
+    storeSettings();
+});
+
+$('#mic-devs-sel').change(function(){
+    curMicDevId = $(this).val();
+    storeSettings();
+});
+
+$('#video-resolution-sel').change(function(){
+    [videoWidth, videoHeight] = $(this).val().split('*');
+    videoWidth = parseInt(videoWidth);
+    videoHeight = parseInt(videoHeight);
+    storeSettings();
+});
+
+$('#share-resolution-sel').change(function(){
+    [shareWidth, shareHeight] = $(this).val().split('*');
+    shareWidth = parseInt(shareWidth);
+    shareHeight = parseInt(shareHeight);
     storeSettings();
 });
 
@@ -256,7 +280,7 @@ $('#login-btn').click(function () {
     let inputUserId = document.getElementById('user-id').value
     let options = {
         appId: useUserDefineApp ? userDefineAppId : defaultAppId,
-        token: useUserDefineApp ? userDefineToken : defaultToken,
+        token: loginToken,
         companyId: "",
         userId: inputUserId,
         forceLogin: false
@@ -310,20 +334,6 @@ $("#leave-group-btn").click(function () {
     doLeaveGroup();
 });
 
-$('#video-resolution-sel').change(function(){
-    [videoWidth, videoHeight] = $(this).val().split('*');
-    videoWidth = parseInt(videoWidth);
-    videoHeight = parseInt(videoHeight);
-    storeSettings();
-});
-
-$('#share-resolution-sel').change(function(){
-    [shareWidth, shareHeight] = $(this).val().split('*');
-    shareWidth = parseInt(shareWidth);
-    shareHeight = parseInt(shareHeight);
-    storeSettings();
-});
-
 // 点击“开始广播”麦克风设备处理
 $('#mic-pub-btn').click(function(){
     let options = $('#mic-devs-sel')[0].options;
@@ -343,7 +353,8 @@ $('#mic-pub-btn').click(function(){
         $('#mic-pub-btn').css("background-color", "rgb(106,125,254)");
     } else {
         if (curMicDevId) {
-            hstRtcEngine.startPublishAudio(curMicDevId);    
+            hstRtcEngine.startPublishAudio(curMicDevId);
+            addSystemMsg("Start publish audio device " + curMicDevId);    
         } else {
             console.error("Invalid curMicDevId!");
             return;
@@ -1184,6 +1195,13 @@ function updateCurMicDev() {
 
 // 加载麦克风、扬声器和摄像头设备列表
 function loadMediaDevList() {
+    micDevList = [];
+    spkDevList = [];
+    camDevList = [];
+
+    $('#mic-devs-sel').empty();
+    $('#spk-devs-sel').empty();
+
     hstRtcEngine.getMediaDevices()
     .then((mediaDevs) => {
         for (const dev of mediaDevs.micDevs){
@@ -1498,10 +1516,10 @@ function initSettingUI() {
     if (useUserDefineApp) {
         $('#app-cfg-cbx').attr('checked', useUserDefineApp);
         $('#app-id-input').removeAttr("disabled");
-        $('#token-input').removeAttr("disabled");
+        $('#app-secret-input').removeAttr("disabled");
     }
     $('#app-id-input').val(userDefineAppId);
-    $('#token-input').val(userDefineToken);
+    $('#app-secret-input').val(userDefineAppSecret);
 
     if (useUserDefineServerAddr) {
         $('#server-cfg-cbx').attr('checked', useUserDefineServerAddr);
@@ -1687,8 +1705,8 @@ function loadSettings() {
     if (localStorage.getItem("userDefineAppId")) {
         userDefineAppId = localStorage.getItem("userDefineAppId");
     }
-    if (localStorage.getItem("userDefineToken")) {
-        userDefineToken = localStorage.getItem("userDefineToken");
+    if (localStorage.getItem("userDefineAppSecret")) {
+        userDefineAppSecret = localStorage.getItem("userDefineAppSecret");
     }
 
     // Server
@@ -1745,7 +1763,7 @@ function loadSettings() {
 function storeSettings() {
     localStorage.setItem("useUserDefineApp", useUserDefineApp);
     localStorage.setItem("userDefineAppId", userDefineAppId);
-    localStorage.setItem("userDefineToken", userDefineToken);
+    localStorage.setItem("userDefineAppSecret", userDefineAppSecret);
 
     localStorage.setItem("useUserDefineServerAddr", useUserDefineServerAddr);
     localStorage.setItem("userDefineServerAddr", userDefineServerAddr);
@@ -1816,4 +1834,40 @@ function doLeaveGroup() {
     });
     
     updateAppState(2);
+}
+
+function fetchLoginToken() {
+    let appInfo = {
+        appId: useUserDefineApp ? userDefineAppId : defaultAppId,
+        appSecret: useUserDefineApp ? userDefineAppSecret : defaultAppSecret
+    };
+
+    try {
+        fetch('https://paas-token-gen.haoshitong.com/generate/token', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(appInfo),
+            credentials: 'omit'
+        })
+        .then(function(resp){
+            resp.json()
+            .then(function(body) {
+                if (body.code == '0') {
+                    loginToken = body.result;
+                } else {
+                    console.error("Fetch token return error ", body.code);
+                }
+            })
+            .catch(function(e){
+                console.error("Invalid response object! ", e);
+            });
+        })
+        .catch(function(e){
+            console.error("Fetch login token failed! ", e);
+        });
+    } catch(e) {
+        console.error("Fetch login token failed! ", e);
+    }
 }
