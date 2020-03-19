@@ -183,6 +183,7 @@
             </div>
             <!-- 设置 -->
             <div id="tab4" class="setting-tab">
+                <div style="text-align: center; color: orange; margin-top: 10px">【注意】由于部分设置修改后需要刷新页面才能生效，为确保设置生效，建议修改任意设置后立即刷新页面！</div>
                 <div >
                     <!-- 应用设置 -->
                     <div class="setting-panel-title">
@@ -214,9 +215,21 @@
                     </div>
                     <div class="setting-panel" id="server-setting-panel">
                         <div style="display: flex; ">
-                            <div class="setting-label">Server Address:</div>
+                            <div class="setting-label">访问地址:</div>
                             <div class="setting-line-margin">
                                 <input type="text" class="text-input" disabled="true" id="server-addr-input" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 登录设置 -->
+                    <div class="setting-panel-title">
+                        <span>&nbsp;&nbsp;登录</span>
+                    </div>
+                    <div class="setting-panel" id="server-setting-panel">
+                        <div style="display: flex; ">
+                            <div class="setting-label">强制登录:</div>
+                            <div class="setting-line-margin">
+                                <input type="checkbox" class="setting-checkbox" id="force-login-cbx" />
                             </div>
                         </div>
                     </div>

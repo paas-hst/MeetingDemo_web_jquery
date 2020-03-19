@@ -74,6 +74,9 @@ let loginToken = "";
 let userDefineServerAddr = "";
 let useUserDefineServerAddr = false;
 
+// 登录配置
+let forceLogin = false;
+
 // 音频配置
 let curMicDevId = "";
 let curSpkDevId = "";
@@ -152,6 +155,15 @@ $('#server-cfg-cbx').click(function(){
     } else {
         $('#server-addr-input').attr("disabled", "disabled");
         useUserDefineServerAddr = false;
+    }
+    storeSettings();
+});
+
+$('#force-login-cbx').click(function(){
+    if ($(this).is(':checked')) {
+        forceLogin = true;
+    } else {
+        forceLogin = false;
     }
     storeSettings();
 });
@@ -283,7 +295,7 @@ $('#login-btn').click(function () {
         token: loginToken,
         companyId: "",
         userId: inputUserId,
-        forceLogin: false
+        forceLogin: forceLogin
     }
     hstRtcEngine.login(options)
     .then(() => {
@@ -868,6 +880,11 @@ hstRtcEngine.on('onInviteReply', function(param){
         alert("用户 " + param.userId + " 拒绝了邀请!");
     }
 });
+
+// 用户强制登出处理
+hstRtcEngine.on('onUserForceLogout', function() {
+    alert("其他用户强制登录，您被被强制登出！");
+})
 
 ////////////////////////////////////////////////////////////////////////////////
 // 辅助函数
@@ -1513,6 +1530,7 @@ function onLeaveGroup() {
 }
 
 function initSettingUI() {
+    // App
     if (useUserDefineApp) {
         $('#app-cfg-cbx').attr('checked', useUserDefineApp);
         $('#app-id-input').removeAttr("disabled");
@@ -1521,12 +1539,17 @@ function initSettingUI() {
     $('#app-id-input').val(userDefineAppId);
     $('#app-secret-input').val(userDefineAppSecret);
 
+    // Server Address
     if (useUserDefineServerAddr) {
         $('#server-cfg-cbx').attr('checked', useUserDefineServerAddr);
         $('#server-addr-input').removeAttr("disabled");
     }
     $('#server-addr-input').val(userDefineServerAddr);
 
+    // Login
+    $('#force-login-cbx').attr('checked', forceLogin);
+
+    // Video
     if (useUserDefineVideoSetting) {
         $('#video-cbx').attr('checked', useUserDefineVideoSetting);    
         $('#video-resolution-sel').removeAttr("disabled");
@@ -1539,6 +1562,7 @@ function initSettingUI() {
     $('#video-bitrate-text').text(videoBitRate);
     $('#video-resolution-sel').val(videoWidth + "*" + videoHeight);
 
+    // Screen share
     if (useUserDefineShareSetting) {
         $('#share-cbx').attr('checked', useUserDefineShareSetting);
         $('#share-resolution-sel').removeAttr("disabled");
@@ -1717,6 +1741,9 @@ function loadSettings() {
         userDefineServerAddr = localStorage.getItem("userDefineServerAddr");
     }
 
+    // login
+    forceLogin = (localStorage.getItem("forceLogin") === 'true');
+
     // Audio
     if (localStorage.getItem("curMicDevId")) {
         curMicDevId = localStorage.getItem("curMicDevId");
@@ -1767,6 +1794,8 @@ function storeSettings() {
 
     localStorage.setItem("useUserDefineServerAddr", useUserDefineServerAddr);
     localStorage.setItem("userDefineServerAddr", userDefineServerAddr);
+
+    localStorage.setItem("forceLogin", forceLogin);
 
     localStorage.setItem("curMicDevId", curMicDevId);
     localStorage.setItem("curSpkDevId", curSpkDevId);
