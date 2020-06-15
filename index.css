@@ -49,7 +49,7 @@
 
 .btn {
     height: 40px; 
-    width: 60%; 
+    width: 100%; 
     box-sizing: border-box; 
     background-color:rgb(106,125,254);
     color:white; 
@@ -83,7 +83,7 @@
 }
 
 .login-input {
-    width: 60%; 
+    width: 100%; 
     line-height: 2; 
     box-sizing: border-box; 
     text-align: center;

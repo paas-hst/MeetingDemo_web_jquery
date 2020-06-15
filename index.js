@@ -8,7 +8,7 @@ let allMsg = "";
 let userId = "";
 let groupId = "";
 
-// 初始化视频显示区域，固定6个显示区域
+// 初始化视频显示区域，固定最多6个显示区域
 let videoPanels = [];
 for (let i = 0; i < 6; i++){
     videoPanels.push({
@@ -18,7 +18,8 @@ for (let i = 0; i < 6; i++){
         userId: "",
         audioId: "",    // audio mediaId
         videoId: "",    // video mediaId
-        streamId: ""
+        streamId: "",
+        nickName: ""
     });
 }
 
@@ -44,7 +45,7 @@ let isScreenSharing = false;
 let groupUserList = new Map();
 
 // 在线用户列表
-let onlineUserList = new Set();
+let onlineUserList = new Map();
 
 // 创建实时音视频引擎
 let hstRtcEngine = new HstRtcEngine();
@@ -289,13 +290,15 @@ $("#init-btn").click(function () {
 
 // 鼠标点击“登录”按钮处理
 $('#login-btn').click(function () {
-    let inputUserId = document.getElementById('user-id').value
+    let inputUserId = document.getElementById('user-id').value;
+    let inputNickName = document.getElementById('nick-name').value;
     let options = {
         appId: useUserDefineApp ? userDefineAppId : defaultAppId,
         token: loginToken,
         companyId: "",
         userId: inputUserId,
-        forceLogin: forceLogin
+        forceLogin: forceLogin,
+        extendInfo: inputNickName
     }
     hstRtcEngine.login(options)
     .then(() => {
@@ -639,11 +642,22 @@ hstRtcEngine.on("onRecvGroupMsg", function(data) {
 });
 
 // 用户在线状态变化通知（上线和下线）
-hstRtcEngine.on('onOnlineUserState', function(param) {
-    if (param.state == 1) { // 用户上线
-        onlineUserList.add(param.userId);
+hstRtcEngine.on('onOnlineUserState', function(params) {
+    if (params.state == 1) { // 用户上线
+        let userInfo = {
+            "mutextType": params.mutexType,
+            "state": params.state,
+            "customState": params.customState,
+            "extendInfo": params.extendInfo
+        };
+        let onlineInfo = onlineUserList.get(params.userId);
+        if (onlineInfo) {
+            onlineInfo.push(userInfo);
+        } else {
+            onlineUserList.set(params.userId, [userInfo]);
+        }
     } else { // 用户下线
-        onlineUserList.delete(param.userId);
+        onlineUserList.delete(params.userId);
     }
     updateOnlineUserList();
 });
@@ -708,8 +722,9 @@ hstRtcEngine.on('onRemoteMediaAdd', function (params) {
         videoPanel.userId = params.userId;
         videoPanel.videoId = params.mediaId;
         videoPanel.streamId = params.streamId;
-        
-        $('#user-label-' + videoPanel.index).html(videoPanel.userId);
+        videoPanel.nickName = getUserNickName(params.userId);
+
+        $('#user-label-' + videoPanel.index).html(videoPanel.nickName ? videoPanel.nickName : videoPanel.userId);
         displayStreamStats(videoPanel);
 
         hstRtcEngine.setStreamRender(videoPanel.handle, params.streamId);
@@ -728,7 +743,8 @@ hstRtcEngine.on('onGroupUserList', function(users){
             pubShare: false,
             audioId: "",
             videoId: new Set(),
-            shareId: ""
+            shareId: "",
+            nickName: getUserNickName(user)
         };
         groupUserList.set(user, userInfo);
     }
@@ -744,7 +760,8 @@ hstRtcEngine.on('onUserJoinGroup', function(user){
         pubShare: false,
         audioId: "",
         videoId: new Set(),
-        shareId: ""
+        shareId: "",
+        nickName: getUserNickName(user)
     };
     groupUserList.set(user, userInfo);
     updateGroupUserList();
@@ -896,36 +913,40 @@ function updateAppState(state) {
     switch (curAppState) {
         case 0: // NONE
             $('#init-btn').css('display', 'inline');
-            $('#user-id').css('display', 'none');
+            $('#user-tr').css('display', 'none');
+            $('#nick-tr').css('display', 'none');
             $('#login-btn').css('display', 'none');
-            $('#group-id').css('display', 'none');
+            $('#group-tr').css('display', 'none');
             $('#join-group-btn').css('display', 'none');
             $('#leave-group-btn').css('display', 'none');
             $('#exit-btn').css('display', 'none');
             break;
         case 1: // INIT
             $('#init-btn').css('display', 'none');
-            $('#user-id').css('display', 'inline');
+            $('#user-tr').css('display', 'inline');
+            $('#nick-tr').css('display', 'inline');
             $('#login-btn').css('display', 'inline');
-            $('#group-id').css('display', 'none');
+            $('#group-tr').css('display', 'none');
             $('#join-group-btn').css('display', 'none');
             $('#leave-group-btn').css('display', 'none');
             $('#exit-btn').css('display', 'none');
             break;
         case 2: // LOGIN
             $('#init-btn').css('display', 'none');
-            $('#user-id').css('display', 'none');
+            $('#user-tr').css('display', 'none');
+            $('#nick-tr').css('display', 'none');
             $('#login-btn').css('display', 'none');
-            $('#group-id').css('display', 'inline');
+            $('#group-tr').css('display', 'inline');
             $('#join-group-btn').css('display', 'inline');
             $('#leave-group-btn').css('display', 'none');
             $('#exit-btn').css('display', 'inline');
             break;
         case 3: // JOIN
             $('#init-btn').css('display', 'none');
-            $('#user-id').css('display', 'none');
+            $('#user-tr').css('display', 'none');
+            $('#nick-tr').css('display', 'none');
             $('#login-btn').css('display', 'none');
-            $('#group-id').css('display', 'none');
+            $('#group-tr').css('display', 'none');
             $('#join-group-btn').css('display', 'none');
             $('#leave-group-btn').css('display', 'inline');
             $('#exit-btn').css('display', 'inline');
@@ -958,7 +979,7 @@ function updateOnlineUserList(){
     $('#online-users-tbl').append("<th width='30%' valign='middle'>操作</th>");
     $('#online-users-tbl').append("</tr>");
     // 在线用户
-    for (const user of onlineUserList){
+    for (const user of onlineUserList.keys()){
         $('#online-users-tbl').append("<tr valign='middle'>");
         if (user !== window.userId) {
             $('#online-users-tbl').append("<td valign='middle' class='user-line'>" + user + "</td>");
@@ -986,13 +1007,25 @@ function getOnlineUserList(){
     hstRtcEngine.getOnlineUsers()
     .then (data => {
         for (const user of data.userInfo){
-            onlineUserList.add(user.userId);
+            onlineUserList.set(user.userId, user.onlineInfo);
         }
         updateOnlineUserList();
     })
     .catch(err => {
         console.log("Get online users failed!");
     });
+}
+
+function getUserNickName(userId) {
+    let onlineInfo = onlineUserList.get(userId);
+    if (onlineInfo) {
+        for (const userInfo of onlineInfo) {
+            if (userInfo.mutexType == 'web') {
+                return userInfo.extendInfo;
+            }
+        }
+    }
+    return "";
 }
 
 // 添加系统消息
@@ -1101,6 +1134,11 @@ function stopPublishAllMedia() {
             hstRtcEngine.stopPublishVideo(panel.mediaId);
             hstRtcEngine.unsetLocalVideoRender(panel.handle);
         }
+    }
+
+    // 取消摄像头选择
+    for (const camera of camDevList) {
+        camera.isPub = false;
     }
 
     // 停止广播音频
@@ -1270,7 +1308,11 @@ function updateGroupUserList(){
         if (user.userId === window.userId){
             $('#group-users-tbl').append("<td valign='middle' class='user-line'>" + user.userId + "(我)</td>");
         } else {
-            $('#group-users-tbl').append("<td valign='middle' class='user-line'>" + user.userId + "</td>");
+            if (user.nickName) {
+                $('#group-users-tbl').append("<td valign='middle' class='user-line'>" + user.userId + "(" + user.nickName + ")" + "</td>");    
+            } else {
+                $('#group-users-tbl').append("<td valign='middle' class='user-line'>" + user.userId + "</td>");
+            }
         }
         
         if (user.pubAudio){
@@ -1527,6 +1569,8 @@ function onLeaveGroup() {
     hideCamMenu();
     refreshDataAndUI();
     updateVideoPanelLayout();
+
+    $('#inner-title').html("好视通云通信MeetingDemo");
 }
 
 function initSettingUI() {
@@ -1742,7 +1786,7 @@ function loadSettings() {
     }
 
     // login
-    forceLogin = (localStorage.getItem("forceLogin") === 'true');
+    forceLogin = (localStorage.getItem("forceLogin") == "true");
 
     // Audio
     if (localStorage.getItem("curMicDevId")) {
@@ -1845,6 +1889,8 @@ function doJoinGroup(groupId) {
 
         $('.invite-btn').removeAttr("disabled");
         $('.invite-btn').css("background-color", "rgb(106,125,254)");
+
+        $('#inner-title').html("Group ID：" + groupId + " | " + " User ID：" + window.userId);
     })
     .catch(() => {
         addSystemMsg('Join group failed!')

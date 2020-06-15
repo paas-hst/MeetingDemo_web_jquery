@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>好视通云通信Web Demo</title>
+    <title>好视通云通信MeetingDemo</title>
     <link href="./index.css" rel="stylesheet" type="text/css" />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="./HstRtcEngine-1.0.9.js"></script>
+    <script src="./HstRtcEngine-1.0.11.js"></script>
 </head>
 
 <body style="background-color: honeydew; padding: 0; margin: 0">
@@ -16,13 +16,29 @@
         <div style="height: 20%;" class="left-panel">
             <div class="left-panel-layout">
                 <div style="width: 100%;" align="center">
-                    <button id="init-btn" class="btn">初始化</button>
-                    <input id="user-id" class="login-input"/>
-                    <button id="login-btn" class="btn">登录</button>
-                    <input id="group-id" class="login-input" />
-                    <button id="join-group-btn" class="btn">加入分组</button>
-                    <button id="leave-group-btn" class="btn">离开分组</button>
-                    <button id="exit-btn" class="btn">退出登录</button>
+                    <table width="80%" style="font-size:14px">
+                        <tr id="user-tr">
+                            <td width="35%"><label>User ID:</label></td>
+                            <td width="65%"><input id="user-id" class="login-input"/></td>
+                        </tr>
+                        <tr id="nick-tr">
+                            <td width="35%"><label>Nick Name:</label></td>
+                            <td width="65%"><input id="nick-name" class="login-input" /></td>
+                        </tr>
+                        <tr id="group-tr">
+                            <td width="35%"><label>Group ID:</label></td>
+                            <td width="65%"><input id="group-id" class="login-input" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button id="init-btn" class="btn">初始化</button>
+                                <button id="login-btn" class="btn">登录</button>
+                                <button id="join-group-btn" class="btn">加入分组</button>
+                                <button id="leave-group-btn" class="btn">离开分组</button>
+                                <button id="exit-btn" class="btn">退出登录</button>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -63,7 +79,7 @@
             <button class="tab" id="tab-btn-2">在线</button>
             <button class="tab" id="tab-btn-3">设置</button>
             <div style="display:flex; align-items:center; height: 100%">
-                <span class="inner-title">好视通云通信WEB-DEMO</span>
+                <span id="inner-title" class="inner-title">好视通云通信MeetingDemo</span>
             </div>
         </div>
         <div style="width: 100%; height: 95%;">
