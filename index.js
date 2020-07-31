@@ -243,6 +243,12 @@ $('#mic-devs-sel').change(function(){
     storeSettings();
 });
 
+$('#spk-devs-sel').change(function(){
+    curSpkDevId = $(this).val();
+    updateCurSpkDev();
+    storeSettings();
+});
+
 $('#video-resolution-sel').change(function(){
     [videoWidth, videoHeight] = $(this).val().split('*');
     videoWidth = parseInt(videoWidth);
@@ -598,8 +604,10 @@ hstRtcEngine.on("onUnPublishMedia", function(data) {
             addSystemMsg("Stop receive remote audio failed!");
         })
     } else if (data.mediaType == 2) { // 视频
-        groupUserList.get(data.userId).pubVideo = false;
         groupUserList.get(data.userId).videoId.delete(data.mediaId);
+        if (groupUserList.get(data.userId).videoId.size == 0) {
+            groupUserList.get(data.userId).pubVideo = false;
+        }
 
         hstRtcEngine.stopReceiveRemoteVideo(data.userId, data.mediaId)
         .then(() => {
@@ -901,7 +909,13 @@ hstRtcEngine.on('onInviteReply', function(param){
 // 用户强制登出处理
 hstRtcEngine.on('onUserForceLogout', function() {
     alert("其他用户强制登录，您被被强制登出！");
-})
+});
+
+// 被强制踢出
+hstRtcEngine.on('onKickOut', function() {
+    alert("您被强制踢出，将刷新页面！");
+    window.location.reload();
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 // 辅助函数
@@ -1019,10 +1033,9 @@ function getOnlineUserList(){
 function getUserNickName(userId) {
     let onlineInfo = onlineUserList.get(userId);
     if (onlineInfo) {
+        //TODO: 原则上是需要基于mutexType获取昵称
         for (const userInfo of onlineInfo) {
-            if (userInfo.mutexType == 'web') {
-                return userInfo.extendInfo;
-            }
+            return userInfo.extendInfo;
         }
     }
     return "";
@@ -1136,6 +1149,14 @@ function stopPublishAllMedia() {
         }
     }
 
+    // 停止广播屏幕共享
+    for (const panel of screenSharePanels) {
+        if (panel.used && panel.userId === window.userId) {
+            hstRtcEngine.stopScreenShare();
+            hstRtcEngine.unsetScreenShareRender(panel.handle);
+        }
+    }
+
     // 取消摄像头选择
     for (const camera of camDevList) {
         camera.isPub = false;
@@ -1144,11 +1165,6 @@ function stopPublishAllMedia() {
     // 停止广播音频
     if (isPublishAudio) {
         hstRtcEngine.stopPublishAudio();
-    }
-
-    // 停止屏幕共享
-    if (isScreenSharing) {
-        hstRtcEngine.stopScreenShare();
     }
 }
 
@@ -1221,13 +1237,8 @@ function displayStreamStats(panel){
 }
 
 function updateCurMicDev() {
-    if (micDevList.length <= 0) {
-        console.warn("Cannot find any microphone device!");
-        return;
-    }
-
     if (curMicDevId) {
-        // 有可能保存得当curMicDevId是无效的，比如更换了设备
+        // 有可能保存的curMicDevId是无效的，比如更换了设备
         let micDevExists = false;
         for (const dev of micDevList) {
             if (dev.devId === curMicDevId) {
@@ -1248,6 +1259,31 @@ function updateCurMicDev() {
     }
 }
 
+function updateCurSpkDev() {
+    if (curSpkDevId) {
+        // 有可能保存的curSpkDevId是无效的，比如更换了设备
+        let spkDevExists = false;
+        for (const dev of spkDevList) {
+            if (dev.devId === curSpkDevId) {
+                spkDevExists = true;
+                break;
+            }
+        }
+
+        if (spkDevExists) {
+            $('#spk-devs-sel').val(curSpkDevId)
+        } else {
+            curSpkDevId = $('#spk-devs-sel').val();
+            storeSettings();    
+        }
+    } else {
+        curSpkDevId = $('#spk-devs-sel').val();
+        storeSettings();
+    }
+
+    hstRtcEngine.chooseSpkDevice(curSpkDevId);
+}
+
 // 加载麦克风、扬声器和摄像头设备列表
 function loadMediaDevList() {
     micDevList = [];
@@ -1259,6 +1295,8 @@ function loadMediaDevList() {
 
     hstRtcEngine.getMediaDevices()
     .then((mediaDevs) => {
+        console.log(mediaDevs);
+
         for (const dev of mediaDevs.micDevs){
             var item = new Option(dev.devName, dev.devId);
             $('#mic-devs-sel').append(item);
@@ -1271,13 +1309,14 @@ function loadMediaDevList() {
             $('#spk-devs-sel').append(item);
             spkDevList.push({devName: dev.devName, devId: dev.devId});
         }
-        // TODO：暂时不支持设置扬声器设备
+        updateCurSpkDev();
 
         for (const dev of mediaDevs.camDevs){
             camDevList.push({devName: dev.devName, devId: dev.devId});
         }
     })
     .catch(err => {
+        console.error(err);
         addSystemMsg("Load media device failed!", err);
     });
 }

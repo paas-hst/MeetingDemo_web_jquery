@@ -215,6 +215,12 @@
     border-radius: 3px;
 }
 
+#online-users-tbl {
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #online-users-tbl th {
     background-color: rgb(106,125,254);
     color: white;
