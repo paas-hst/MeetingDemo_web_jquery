@@ -7,8 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>好视通云通信MeetingDemo</title>
     <link href="./index.css" rel="stylesheet" type="text/css" />
-    <script src="./jquery-3.2.1.min.js"></script>
-    <script src="./HstRtcEngine-1.0.11.js"></script>
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon" />
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="hst-rtc-engine-2.1.0.js"></script>
 </head>
 
 <body style="background-color: honeydew; padding: 0; margin: 0">
@@ -16,7 +17,7 @@
         <div style="height: 20%;" class="left-panel">
             <div class="left-panel-layout">
                 <div style="width: 100%;" align="center">
-                    <table width="80%" style="font-size:14px">
+                    <table width="80%" style="font-size:14px;">
                         <tr id="user-tr">
                             <td width="35%"><label>User ID:</label></td>
                             <td width="65%"><input id="user-id" class="login-input"/></td>
@@ -35,7 +36,7 @@
                                 <button id="login-btn" class="btn">登录</button>
                                 <button id="join-group-btn" class="btn">加入分组</button>
                                 <button id="leave-group-btn" class="btn">离开分组</button>
-                                <button id="exit-btn" class="btn">退出登录</button>
+                                <button id="logout-btn" class="btn">退出登录</button>
                             </td>
                         </tr>
                     </table>
@@ -43,14 +44,8 @@
             </div>
         </div>
         <!-- 分组用户列表 -->
-        <div style="height: 30%; overflow-y: auto" class="left-panel">                
-            <table id="group-users-tbl" width="100%" style="border-spacing: 0px">
-                <tr>
-                    <th valign='middle' width='55%'>User ID</th>
-                    <th valign='middle' width='15%'>Audio</th>
-                    <th valign='middle' width='15%'>Video</th>
-                    <th valign='middle' width='15%'>Share</th>
-                </tr>
+        <div class="left-panel group-users-div">                
+            <table id="group-users-tbl" width="100%">
             </table>
         </div>
         <!-- 消息显示文本框 -->
@@ -77,7 +72,8 @@
             <button class="tab" id="tab-btn-0" style="color: white">音视频</button>
             <button class="tab" id="tab-btn-1">屏幕共享</button>
             <button class="tab" id="tab-btn-2">在线</button>
-            <button class="tab" id="tab-btn-3">设置</button>
+            <button class="tab" id="tab-btn-3">白板</button>
+            <button class="tab" id="tab-btn-4">设置</button>
             <div style="display:flex; align-items:center; height: 100%">
                 <span id="inner-title" class="inner-title">好视通云通信MeetingDemo</span>
             </div>
@@ -88,66 +84,42 @@
                 <div id="video-top-panel" class="video-top">
                     <div id="video-panel-wrapper-0" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-0" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-0"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-0"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-0"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-0"></label></div>
                     </div>
                     <div id="video-panel-wrapper-1" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-1" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-1"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-1"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-1"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-1"></label></div>
                     </div>
                     <div id="video-panel-wrapper-2" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-2" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-2"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-2"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-2"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-2"></label></div>
                     </div>                        
                     <div id="video-panel-wrapper-3" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-3" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-3"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-3"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-3"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-3"></label></div>
                     </div>
                     <div id="video-panel-wrapper-4" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-4" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-4"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-4"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-4"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-4"></label></div>
                     </div>
                     <div id="video-panel-wrapper-5" class="video-panel-wrapper" max="false">
                         <video autoplay playsinline id="video-panel-5" max="false" class="video-element"></video>
-                        <div class="overlay-user-label">
-                            <label id="user-label-5"></label>
-                        </div>
-                        <div class="overlay-video-label">
-                            <label id="video-label-5"></label>
-                        </div>
+                        <div class="overlay-user-label"><label id="user-label-5"></label></div>
+                        <div class="overlay-video-label"><label id="video-label-5"></label></div>
                     </div>
                 </div>
                 <div class="video-bottom">
                     <div class="dev-panel">
-                        <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                        <div class="dev-panel-wrapper">
                             <div align="center" style="width: 100%">
                                 <button id="mic-pub-btn" class="pub-btn" disabled="disabled">麦克风</button>
                                 <button id="cam-pub-btn" class="pub-btn" disabled="disabled">摄像头</button>
-                                <div id="cam-menu" style="display: none; position:absolute; background-color:azure;">
+                                <div id="cam-menu" class="video-dev-menu">
                                     <table id="cam-menu-table" align="left"></table>
                                 </div>
                             </div>
@@ -179,171 +151,285 @@
                 </div>
                 <div class="screen-share-ctrl-panel">
                     <div id="screen-btn-div">
-                        <button id="screen-share-btn" disabled="disabled">开始共享</button>
+                        <button id="screen-share-btn" disabled="disabled" style="border-radius: 5px;">开始共享</button>
                     </div>
                 </div>
             </div>
             <!-- 在线 -->
             <div id="tab3" class="online-tab">
-                <div style="display:flex; align-items:center; justify-content: center; height: 100%;">
+                <div class="online-panel">
                     <div id="online-users-div">
-                        <table id="online-users-tbl" width="100%" style="border-spacing: 0px">
+                        <table id="online-users-tbl" width="100%" class="online-table">
                             <tr>
-                                <th width='50%'>User ID</th>
-                                <th width='20%'>状态</th>
-                                <th width='30%'>操作</th>
+                                <th width='40%'>User ID</th>
+                                <th width='20%'>Mutex Type</th>
+                                <th width='20%'>State</th>
+                                <th width='20%'>Operation</th>
                             </tr>
                         </table>
                     </div>
                 </div>
             </div>
-            <!-- 设置 -->
+            <!-- 白板-->
             <div id="tab4" class="setting-tab">
+                <!-- Tab -->
+                <div class="board-tab">
+                    <div class="board-tab-box">
+                        <ul id="board-tab-ul"></ul>
+                    </div>
+                </div>
+                <!-- Canvas -->
+                <div id="board-content-panel" class="board-content"></div>
+                <!-- Control -->
+                <div class="board-bottom clearfix" style="display: none">
+                    <div class="edit-btn btn" style="display: none">标注</div>
+                    <div class="btn-group" style="display: none">
+                        <div class="type_btn_group">
+                            <div class="btn line_btn" data-value="eraser">橡皮檫</div>
+                            <div class="btn line_btn" data-value="line">直线</div>
+                            <div class="btn curve_btn" data-value="curve">曲线</div>
+                            <div class="btn text_btn" data-value="text">文本</div>
+                        </div>
+                        <div class="btn revoke_btn" >撤销</div>
+                        <div class="btn restore_btn">恢复</div>
+                        <div class="btn clear_btn" >清空</div>
+                        <div class="size-btn-group">
+                            <div class="btn" data-value="1">细</div>
+                            <div class="btn" data-value="2">中</div>
+                            <div class="btn" data-value="4">粗</div>
+                        </div>
+                        <div class="color-btn-group">
+                            <div class="btn" data-value="#ff0000">红</div>
+                            <div class="btn" data-value="#0000ff">蓝</div>
+                            <div class="btn" data-value="#00ff00">绿</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn page-up" style="width: 60px">上一页</button>
+                        <span class="btn curPage" style="background: #ccc"></span>
+                        <button class="btn page-next" style="width: 60px">下一页</button>
+                        <div class="close-btn btn" style="width: 80px">关闭白板</div>
+                    </div>
+                </div>
+                <div class="oprate-board">
+                    <div class="createBoard">创建白板</div>
+                    <input type="file" class="docInput"style="display: none"></input>
+                    <div class="createDocBoard">选择文件</div>
+                </div>
+            </div>
+            <!-- 设置 -->
+            <div id="tab5" class="setting-tab">
                 <div style="text-align: center; color: orange; margin-top: 10px">【注意】由于部分设置修改后需要刷新页面才能生效，为确保设置生效，建议修改任意设置后立即刷新页面！</div>
-                <div >
-                    <!-- 应用设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;应用</span>
+                <div class="setting-tab-box">
+                    <!-- Tab -->
+                    <div class="setting-tab-nav">
+                        <ul>
+                            <li class="active">登录</li>
+                            <li>音频</li>
+                            <li>视频</li>
+                            <li>屏幕共享</li>
+                            <li>电子白板</li>
+                        </ul>
+                    </div>
+                    <!-- Content -->
+                    <div class="setting-tab-content">
+                        <div class="active-content">
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;应用</span>
+                                <div>
+                                    <input type="checkbox" class="setting-checkbox" id="app-cfg-cbx" />
+                                </div>
+                            </div>
+                            <div class="setting-panel" id="app-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">App ID:</div>
+                                    <div class="setting-line-input">
+                                        <input type="text" class="text-input" disabled="true" id="app-id-input" />
+                                    </div>
+                                </div>
+                                <div style="display: flex;">
+                                    <div class="setting-label">App Secret:</div>
+                                    <div class="setting-line-input">
+                                        <input type="text" class="text-input" disabled="true" id="app-secret-input" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 服务器设置 -->
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;服务器</span>
+                                <div>
+                                    <input type="checkbox" class="setting-checkbox" id="server-cfg-cbx" />
+                                </div>
+                            </div>
+                            <div class="setting-panel" id="server-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">访问地址:</div>
+                                    <div class="setting-line-input">
+                                        <input type="text" class="text-input" disabled="true" id="server-addr-input" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;其它</span>
+                            </div>
+                            <div class="setting-panel" id="login-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">强制登录:</div>
+                                    <div class="setting-line-checkbox">
+                                        <input type="checkbox" class="setting-checkbox" id="force-login-cbx" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 音频设置 -->
                         <div>
-                            <input type="checkbox" class="setting-checkbox" id="app-cfg-cbx" />
-                        </div>
-                    </div>
-                    <div class="setting-panel" id="app-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">App ID:</div>
-                            <div class="setting-line-margin">
-                                <input type="text" class="text-input" disabled="true" id="app-id-input" />
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;设备</span>
+                            </div>
+                            <div class="setting-panel" id="audio-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">麦克风:</div>
+                                    <div class="setting-line-input">
+                                        <select id="mic-devs-sel" class="dev-sel"></select>
+                                    </div>
+                                </div>
+                                <div style="display: flex; ">
+                                    <div class="setting-label">扬声器:</div>
+                                    <div class="setting-line-input">
+                                        <select id="spk-devs-sel" class="dev-sel"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;变声</span>
+                            </div>
+                            <div class="setting-panel" id="magic-setting-panel">
+                                <div style="display: flex; margin-top: 10px">                            
+                                    <div class="setting-label">接收变声:</div>
+                                    <div class="setting-line-input">
+                                        <select id="recv-magic-sel" class="magic-sel">
+                                            <option value="0">跟随</option>
+                                            <option value="1">只接原声</option>
+                                            <option value="2">只接变声</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-label">发送变声:</div>
+                                    <div class="setting-line-margin">
+                                        <input id="magic-audio-slider" type="range" min="-12" max="12" value="0" step="1" style="width: 100px;">
+                                    </div>
+                                    <div class="slider-text-block">
+                                        <span id="magic-audio-text" class="slider-value-text" style="text-align: left; margin-left: 5px;"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex;">
-                            <div class="setting-label">App Secret:</div>
-                            <div class="setting-line-margin">
-                                <input type="text" class="text-input" disabled="true" id="app-secret-input" />
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 服务器设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;服务器</span>
+                        <!-- 视频设置 -->
                         <div>
-                            <input type="checkbox" class="setting-checkbox" id="server-cfg-cbx" />
-                        </div>
-                    </div>
-                    <div class="setting-panel" id="server-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">访问地址:</div>
-                            <div class="setting-line-margin">
-                                <input type="text" class="text-input" disabled="true" id="server-addr-input" />
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;参数</span>
+                                <div>
+                                    <input type="checkbox" class="setting-checkbox" id="video-cbx" />
+                                </div>
+                            </div>
+                            <div class="setting-panel" id="video-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">分辨率:</div>
+                                    <div class="setting-line-input">
+                                        <select id="video-resolution-sel" class="dev-sel" disabled="disabled">
+                                            <option value="320*240">320*240</option>
+                                            <option value="640*480">640*480</option>
+                                            <option value="1280*720">1280*720</option>
+                                            <option value="1920*1080">1920*1080</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display: flex; ">
+                                    <div class="setting-label">帧率:</div>
+                                    <div class="setting-line-margin">
+                                        <input id="video-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
+                                    </div>
+                                    <div class="slider-text-block">
+                                        <span id="video-framerate-text" class="slider-value-text">&nbsp;</span>
+                                        <span>fps</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; ">
+                                    <div class="setting-label">码率:</div>
+                                    <div class="setting-line-margin">
+                                        <input id="video-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
+                                    </div>
+                                    <div class="slider-text-block">
+                                        <span id="video-bitrate-text" class="slider-value-text">&nbsp;</span>
+                                        <span>kbps</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- 登录设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;登录</span>
-                    </div>
-                    <div class="setting-panel" id="server-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">强制登录:</div>
-                            <div class="setting-line-margin">
-                                <input type="checkbox" class="setting-checkbox" id="force-login-cbx" />
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 音频设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;音频</span>
-                    </div>
-                    <div class="setting-panel" id="audio-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">麦克风:</div>
-                            <div class="setting-line-margin">
-                                <select id="mic-devs-sel" class="dev-sel"></select>
-                            </div>
-                        </div>
-                        <div style="display: flex; ">
-                            <div class="setting-label">扬声器:</div>
-                            <div class="setting-line-margin">
-                                <select id="spk-devs-sel" class="dev-sel"></select>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 视频设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;视频</span>
+                        <!-- 屏幕共享设置 -->
                         <div>
-                            <input type="checkbox" class="setting-checkbox" id="video-cbx" />
-                        </div>
-                    </div>
-                    <div class="setting-panel" id="video-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">分辨率:</div>
-                            <div class="setting-line-margin">
-                                <select id="video-resolution-sel" class="dev-sel" disabled="disabled">
-                                    <option value="320*240">320*240</option>
-                                    <option value="640*480">640*480</option>
-                                    <option value="1280*720">1280*720</option>
-                                    <option value="1920*1080">1920*1080</option>
-                                </select>
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;参数</span>
+                                <div>
+                                    <input type="checkbox" class="setting-checkbox" id="share-cbx" />
+                                </div>
+                            </div>
+                            <div class="setting-panel" id="share-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">分辨率:</div>
+                                    <div class="setting-line-input">
+                                        <select id="share-resolution-sel" class="dev-sel" disabled="disabled">
+                                            <option value="320*240">320*240</option>
+                                            <option value="640*480">640*480</option>
+                                            <option value="1280*720">1280*720</option>
+                                            <option value="1920*1080">1920*1080</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display: flex; ">
+                                    <div class="setting-label">帧率:</div>
+                                    <div class="setting-line-margin">
+                                        <input id="share-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
+                                    </div>
+                                    <div class="slider-text-block">
+                                        <span id="share-framerate-text" class="slider-value-text">&nbsp;</span>
+                                        <span>fps</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; ">
+                                    <div class="setting-label">码率:</div>
+                                    <div class="setting-line-margin">
+                                        <input id="share-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
+                                    </div>
+                                    <div class="slider-text-block">
+                                        <span id="share-bitrate-text" class="slider-value-text">&nbsp;</span>
+                                        <span>kbps</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; ">
-                            <div class="setting-label">帧率:</div>
-                            <div class="setting-line-margin">
-                                <input id="video-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
-                            </div>
-                            <div class="slider-text-block">
-                                <span id="video-framerate-text" class="slider-value-text">&nbsp;</span>
-                                <span>fps</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; ">
-                            <div class="setting-label">码率:</div>
-                            <div class="setting-line-margin">
-                                <input id="video-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
-                            </div>
-                            <div class="slider-text-block">
-                                <span id="video-bitrate-text" class="slider-value-text">&nbsp;</span>
-                                <span>kbps</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 屏幕共享设置 -->
-                    <div class="setting-panel-title">
-                        <span>&nbsp;&nbsp;屏幕共享</span>
+                        <!-- 电子白板 -->
                         <div>
-                            <input type="checkbox" class="setting-checkbox" id="share-cbx" />
-                        </div>
-                    </div>
-                    <div class="setting-panel" id="share-setting-panel">
-                        <div style="display: flex; ">
-                            <div class="setting-label">分辨率:</div>
-                            <div class="setting-line-margin">
-                                <select id="share-resolution-sel" class="dev-sel" disabled="disabled">
-                                    <option value="320*240">320*240</option>
-                                    <option value="640*480">640*480</option>
-                                    <option value="1280*720">1280*720</option>
-                                    <option value="1920*1080">1920*1080</option>
-                                </select>
+                            <div class="setting-panel-title">
+                                <span>&nbsp;&nbsp;参数</span>
                             </div>
-                        </div>
-                        <div style="display: flex; ">
-                            <div class="setting-label">帧率:</div>
-                            <div class="setting-line-margin">
-                                <input id="share-framerate-slider" type="range" min="1" max="30" value="15" step="1" style="width: 300px" disabled="disabled">
-                            </div>
-                            <div class="slider-text-block">
-                                <span id="share-framerate-text" class="slider-value-text">&nbsp;</span>
-                                <span>fps</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; ">
-                            <div class="setting-label">码率:</div>
-                            <div class="setting-line-margin">
-                                <input id="share-bitrate-slider" type="range" min="0" max="8000" value="1000" step="100" style="width: 300px;" disabled="disabled">
-                            </div>
-                            <div class="slider-text-block">
-                                <span id="share-bitrate-text" class="slider-value-text">&nbsp;</span>
-                                <span>kbps</span>
+                            <div class="setting-panel" id="board-setting-panel">
+                                <div style="display: flex; margin-top: 10px">
+                                    <div class="setting-label">显示模式:</div>
+                                    <div class="setting-line-input">
+                                        <select id="display-mode-sel" class="magic-sel">
+                                            <option value="1">等比完整</option>
+                                            <option value="2">等比适应</option>
+                                            <option value="3">等比缩放</option>
+                                        </select>
+                                    </div>
+                                    <div style="display: flex" id="scale-param-div">
+                                        <div class="setting-label">缩放比例:</div>
+                                        <div class="setting-line-input">
+                                            <input type="text" class="scale-input" id="scale-param-input" /> %
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

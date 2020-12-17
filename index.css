@@ -11,6 +11,7 @@
     width:80%;
     background-color: white;
     height: 100vh;
+    overflow: hidden;
 }
 
 .tab-content{
@@ -183,7 +184,7 @@
 }
 
 #online-users-div {
-    width:400px; 
+    width:600px; 
     height: 80%; 
     margin: 0px auto; 
     border:1px solid rgb(216,216,216); 
@@ -254,11 +255,15 @@
     height: 30px;
     text-align: center;
     box-sizing: border-box;
-    padding: 0px;
+    padding-left: 4px;
+    padding-right: 4px;
     margin: 0px;
     border-width: 0px 0px 1px 0px;
     border-style: hidden hidden dashed hidden;
     border-color: rgb(216,216,216);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .pub-state-btn {
@@ -305,6 +310,67 @@
     height: calc(100% - 80px);
 }
 
+.board-tab {
+    width: 100%;
+    height: 30px;
+    background-color: rgb(232, 240, 254);
+    border-bottom: 1px solid black;
+}
+
+.board-content {
+    position: relative;
+    background-color:black;
+    /* float: left; */
+    width: 100%;
+    height: calc(100% - 140px);
+}
+
+.board-bottom {
+    float: left;
+    width: 100%;
+    height: 45px;
+    margin: 0px;
+    background-color: white;
+    border-top: 1px solid rgb(193,193,193);
+    border-bottom: 1px solid rgb(193,193,193);
+}
+.board-bottom .btn {
+    float: left;
+    text-align: center;
+    line-height: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+    width: 50px;
+    height: 30px;
+}
+.oprate-board {
+    height: 65px;
+    width: 100%;
+    display: flex;
+    background: #fff;
+    align-items: center;
+    justify-content: center;
+}
+.oprate-board .createBoard, .createDocBoard {
+    width: 150px;
+    height: 40px;
+    box-sizing: border-box;
+    background-color: rgb(193,193,193);
+    border: 0px solid rgb(106,125,254);
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+.createDocBoard {
+    margin-left: 20px
+}
+
 .video-bottom {
     float: left;
     width: 100%;
@@ -331,6 +397,26 @@
     background-color:black; 
     border: 1px solid white;
     box-sizing: border-box;
+}
+
+.overlay-audio-volume {
+    position: relative;
+    width: 12px; 
+    height: 16px; 
+    border-radius: 5px;
+    border: 1px solid green;
+    background-color: white; 
+    color:white;
+    margin: 0 auto;
+}
+
+.audio-volume {
+    position: absolute;
+    bottom: 0;
+    background-color: green; 
+    width: 12px; 
+    height: 0px;
+    
 }
 
 .overlay-user-label {
@@ -386,13 +472,16 @@
 .setting-panel-title {
     display:flex;
     justify-content: space-between;
-    width: 720px;
+    width: 660px;
     height: 30px;
     line-height: 30px;
-    background-color: rgb(106,125,254);
-    margin: 0 auto;
-    margin-top: 10px;
-    color: white;
+    background-color: white;
+    border-bottom: 1px solid rgb(216,216,216);
+    /* margin: 0 auto; */
+    /* margin-top: 30px; */
+    margin-left: 30px;
+    padding-top: 30px;
+    color: black;
 }
 
 .text-input {
@@ -401,8 +490,20 @@
     box-sizing: border-box;
 }
 
+.scale-input {
+    width: 60px;
+    height: 30px;
+    box-sizing: border-box;
+}
+
 .dev-sel {
     width: 400px; 
+    height: 30px; 
+    /* margin-top:10px */
+}
+
+.magic-sel {
+    width: 100px; 
     height: 30px; 
     /* margin-top:10px */
 }
@@ -434,6 +535,16 @@
 }
 
 .setting-line-margin {
+    margin-top: 15px; 
+    margin-bottom: 10px;
+}
+
+.setting-line-input {
+    margin-top: 10px; 
+    margin-bottom: 10px;
+}
+
+.setting-line-checkbox {
     margin-top: 10px; 
     margin-bottom: 10px;
 }
@@ -449,4 +560,188 @@
 
 .cam-menu-cbx {
     background-color: white;
+}
+.whiteboard {
+    width: 95%;
+    height: 95%
+}
+/* canvas {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+} */
+/* 清楚浮动元素 */
+.clearfix:after {
+	content: '.';
+	height: 0;
+	display: block;
+	clear: both;
+	visibility: hidden;
+}
+.clearfix {
+	zoom: 1;
+}
+
+.menuItem {
+    width: 100px;
+    height: 25px;
+    margin: 0px;
+    padding: 0px;
+    float: left;
+    box-sizing: border-box;
+    border: 1px solid rgb(44,48,78);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.menuItem.selected {
+    background-color: rgb(106,125,254);
+    color: white;
+}
+
+
+/*----------------------------------- 设置界面 -----------------------------------*/
+
+.setting-tab-box {
+    width: 720px;
+    margin: 0 auto;
+}
+
+.setting-tab-nav {
+    width: 720px; 
+    background-color: rgb(44,48,78); 
+    display:flex; 
+    height: 40px; 
+    margin-top: 20px;
+}
+
+.setting-tab-box ul {
+    list-style-type: none;  
+    padding-inline-start: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+.setting-tab-box li {
+    float: left;
+    width: 100px;
+    background: white;
+    color: black;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    cursor: pointer;
+    margin-right: 0px;
+    /* font-weight: bold; */
+    border: 1px solid black;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: normal;
+    font-family: "Microsoft Yahei";
+}
+
+.setting-tab-box li.active {
+    background: rgb(106,125,254);
+    color: white;
+}
+
+.setting-tab-content {
+    padding-left: 0px;
+}
+
+.setting-tab-content>div {
+    width: 720px;
+    height: 440px;
+    /* padding: 15px 5px; */
+    color: #000;
+    /* clear: left; */
+    display: none;
+    background:white;
+}
+/*//注意这里设置整个容器里的div为不可见的*/
+
+.setting-tab-box div.active-content {
+    display: block;
+}
+
+.board-tab-box {
+    width: 100%;
+}
+
+.board-tab-box ul {
+    list-style-type: none;  
+    padding-inline-start: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+.board-tab-box li {
+    float: left;
+    width: 100px;
+    background-color: white;
+    color: black;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+    margin-right: 0px;
+    border: 1px solid black;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: normal;
+    font-family: "Microsoft Yahei";
+    border-top-right-radius:15px;
+    /* border-top-left-radius: 15px; */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* .board-tab-box li:hover {
+    width: auto
+} */
+
+#group-users-tbl {
+    border-spacing: 0px; 
+    word-break: break-all; 
+    table-layout: fixed;
+}
+
+.group-users-div {
+    height: 30%; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+
+.dev-panel-wrapper {
+    display:flex; 
+    align-items:center; 
+    justify-content: center; 
+    height: 100%;
+}
+
+.video-dev-menu {
+    display: none; 
+    position:absolute; 
+    background-color:azure;
+}
+
+.online-table {
+    border-spacing: 0px; 
+    table-layout: fixed; 
+    word-wrap:break-word;
+}
+
+.online-panel {
+    display:flex; 
+    align-items:center; 
+    justify-content: center; 
+    height: 100%;
+}
+
+.edit-btn {
+    width: auto !important;
+    padding: 0 10px;
 }
