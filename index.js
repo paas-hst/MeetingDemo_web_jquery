@@ -904,7 +904,7 @@ function updateOnlineUserList() {
             $('#' + nodeId).append("<td valign='middle' class='user-line'>在线</td>")
 
             if (key !== window.userId) {
-                $('#' + nodeId).append("<td valign='middle' class='user-line'><button disabled='disabled' class='invite-btn' onclick='inviteJoinGroup(&#39" + key + "&#39)'>邀请</button></td>")
+                $('#' + nodeId).append("<td valign='middle' class='user-line'><button disabled='disabled' class='invite-btn' onclick='inviteJoinGroup(" + key + ")'>邀请</button></td>")
             } else {
                 $('#' + nodeId).append("<td valign='middle' class='user-line'></td>")
             }
