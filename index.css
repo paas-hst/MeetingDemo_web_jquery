@@ -60,6 +60,18 @@
     margin-bottom: 5px;
 }
 
+.call-btn {
+    width: 80px;
+    height: 30px;
+    box-sizing: border-box; 
+    background-color:rgb(106,125,254);
+    color:white; 
+    border: 0px solid rgb(65, 68, 85);
+    border-radius: 3px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 .pub-btn {
     height: 60px; 
     width: 60px; 
@@ -216,6 +228,21 @@
     border-radius: 3px;
 }
 
+#call-tbl {
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#call-tbl th {
+    background-color: rgb(106,125,254);
+    color: white;
+    border-style: none none none solid;
+    border-width: 0px 0px 0px 1px;  
+    box-sizing: border-box;
+    height: 35px;
+}
+
 #online-users-tbl {
     word-break: break-all;
     overflow: hidden;
@@ -264,6 +291,23 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.call-line {
+    background-color: white;
+    height: 30px;
+    text-align: center;
+    box-sizing: border-box;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin: 0px;
+    border-width: 0px 0px 1px 0px;
+    border-style: hidden hidden dashed hidden;
+    border-color: rgb(216,216,216);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: small;
 }
 
 .pub-state-btn {
@@ -744,4 +788,141 @@
 .edit-btn {
     width: auto !important;
     padding: 0 10px;
+}
+
+/* 定义模态对话框外面的覆盖层样式 */
+.modal-overlay {
+    visibility: hidden;    
+    position: absolute;   /* 使用绝对定位或固定定位  */
+    left: 0px;    
+    top: 0px;
+    width:100%;
+    height:100%;
+    text-align:center;
+    z-index: 9;
+    background-color: #333; 
+    opacity: 0.5;   /* 背景半透明 */
+}
+
+/* 被叫模态框样式 */
+#callee-modal-data {
+    visibility: hidden;
+    position: fixed;
+    width:300px;
+    height: 100px;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    border:1px solid #000;
+    padding:15px;
+    text-align:center;
+    z-index: 10;
+    opacity: 1;
+    border-radius: 4px;
+}
+
+/* 呼叫模态框样式 */
+#call-modal-data {
+    visibility: hidden;
+    position: fixed;
+    width:300px;
+    height: 180px;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    border:1px solid #000;
+    padding:15px;
+    text-align:center;
+    z-index: 10;
+    opacity: 1;
+    border-radius: 4px;
+}
+
+.call-btn-layer {
+    display: flex; 
+    margin-top: 20px; 
+    justify-content: center;
+}
+
+#callee-id-input {
+    width: 192px; 
+    line-height: 22px;
+}
+
+.call-label {
+    line-height: 40px;
+}
+
+#callee-type-sel {
+    width: 200px; 
+    height: 30px;
+}
+
+.call-type-layer {
+    display: flex; 
+    height: 40px; 
+    margin-top: 12px;
+}
+
+.callee-id-layer {
+    display: flex; 
+    height: 40px;
+}
+
+.group-id-layer {
+    display: flex; 
+    height: 40px;
+}
+
+#group-id-input {
+    width: 192px; 
+    line-height: 22px;
+}
+
+.call-tbl-panel {
+    width: 800px;
+    background-color: white;
+    margin: 0 auto;
+    height: 500px; 
+    margin-top: 40px;
+    border-bottom: solid 1px rgb(193,193,193);
+}
+
+#create-call-btn {
+    height:35px; 
+    width: 70px; 
+    background-color:rgb(106,125,254); 
+    border: 0px;
+    box-sizing: border-box;
+    color: white;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+#accept-call-btn {
+    height:30px; 
+    width: 80px; 
+    background-color:rgb(106,125,254); 
+    border: 0px;
+    box-sizing: border-box;
+    color: white;
+    border-radius: 3px;
+    /* font-weight: bold; */
+    margin-left: 3px;
+}
+
+#reject-call-btn {
+    height:30px; 
+    width: 80px; 
+    border: 0px;
+    box-sizing: border-box;
+    border-radius: 3px;
+    /* font-weight: bold; */
+    margin-right: 3px;
 }

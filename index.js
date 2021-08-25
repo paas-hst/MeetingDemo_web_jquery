@@ -8,6 +8,8 @@ let allMsg = ""
 let userId = ""
 let groupId = ""
 
+let audioMange = ""  // 本地音频状态管理器
+
 // 初始化视频显示区域，固定最多6个显示区域
 let videoPanels = []
 for (let i = 0; i < 6; i++) {
@@ -68,6 +70,20 @@ const MediaType = hstRtcEngine.MediaType
 const OnlineType = hstRtcEngine.OnlineType
 const DisplayMode = hstRtcEngine.DisplayMode
 
+// 本端发起的呼叫列表（主叫）
+// callId: xxx
+// groupId: xxx
+// calleeType: xxx
+// calleeId: xxx
+// callTime: xxx
+// callState: xxx
+let callList = new Array()
+let callStateStr = ["Invalid", "呼叫中", "通话中", "已结束", "失败"]
+let calleeTypeStr = ["Invalid", "电话呼叫", "SIP呼叫", "RTSP呼叫", "在线呼叫"]
+
+// 当前所属呼叫（被叫）
+let curCallId = null
+
 ////////////////////////////////////////////////////////////////////////////////
 // 配置数据
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +109,7 @@ let sendMagicAudioValue = 0
 // 音频配置
 let curMicDevId = ""
 let curSpkDevId = ""
+let magicAudioSwitch = false
 
 // 视频配置（默认配置）
 let useUserDefineVideoSetting = false
@@ -160,6 +177,7 @@ $(function () {
     initSettingUI()
 
     updateGroupUserList()
+    updateCallList()
     updateAppState(0)
     updateVideoPanelLayout()
     updateCurWbDisplayMode()
@@ -174,10 +192,78 @@ $(function () {
 // 控件行为定义
 ////////////////////////////////////////////////////////////////////////////////
 
+// 点击“创建呼叫”按钮
+$('#create-call-btn').click(function() {
+    let e1 = document.getElementById('call-modal-overlay');
+    e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+
+    let e2 = document.getElementById('call-modal-data');
+    e2.style.visibility = (e2.style.visibility == "visible") ? "hidden" : "visible";
+
+    if (window.groupId) {
+        $('#group-id-input').attr("disabled", "disabled")
+        $('#group-id-input').val(window.groupId)
+    }
+})
+
+// 点击创建呼叫对话框的取消按钮
+$('#cancel-call-btn').click(function() {
+    let e1 = document.getElementById('call-modal-overlay');
+    e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+
+    let e2 = document.getElementById('call-modal-data');
+    e2.style.visibility = (e2.style.visibility == "visible") ? "hidden" : "visible";
+})
+
+// 点击创建呼叫对话框的确定按钮
+$('#confirm-call-btn').click(function() {
+    let callee_id = $('#callee-id-input').val();
+    let callee_type = parseInt($('#callee-type-sel').val());
+    let group_id = $('#group-id-input').val();
+
+    let params = {
+        seqId: 1000,
+        groupId: group_id,
+        calleeType: callee_type,
+        calleeId: callee_id,
+        extendInfo: ""
+    };
+    hstRtcEngine.makeCall(params).then((data)=>{
+        $('#call-modal-overlay').css("visibility", "hidden");
+        $('#call-modal-data').css("visibility", "hidden");
+        addSystemMsg("Start calling " + callee_id);
+        callList.push({
+            callId: data.callId,
+            groupId: window.groupId,
+            calleeType: callee_type,
+            calleeId: callee_id,
+            callTime: getSystemTime(),
+            callState: 1
+        })
+        updateCallList()
+    }).catch((error)=>{
+        $('#call-modal-overlay').css("visibility", "hidden");
+        $('#call-modal-data').css("visibility", "hidden");
+        addSystemMsg("Call " + callee_id + " failed, error: " + error)
+    })
+})
+
 $('.whiteboard-menu').on('click', 'button', function (event) {
     var target = $(event.target)
     target.addClass('selected').siblings().removeClass('selected')
     $(`#${target.attr('data-id')}`).show().siblings().hide()
+})
+
+$('#app-cfg-magic').click(function () {
+    if ($(this).is(':checked')) {
+        magicAudioSwitch = true
+        hstRtcEngine.setMagicAudioSwitch(true)
+        
+    } else {
+        magicAudioSwitch = false
+        hstRtcEngine.setMagicAudioSwitch(false)
+    }
+    storeSettings()
 })
 
 $('#app-cfg-cbx').click(function () {
@@ -243,9 +329,10 @@ $('#share-cbx').click(function () {
     storeSettings()
 })
 
-$('#magic-audio-slider').change(function () {
+$('#magic-audio-slider').change(function () { // 实时设置变声
     $('#magic-audio-text').text($(this).val())
     sendMagicAudioValue = parseInt($(this).val())
+    hstRtcEngine.setSendMagicAudioValue(sendMagicAudioValue)
     storeSettings()
 })
 
@@ -372,6 +459,7 @@ $('#login-btn').click(function () {
         // 登录成功后，应立即获取全量在线用户列表，后续服务器只会通知增量在线用户
         getOnlineUserList()
         updateAppState(2)
+        updateCallList()
         addSystemMsg("Login success.")
     }).catch(() => {
         addSystemMsg("Login failed!")
@@ -388,6 +476,9 @@ $("#logout-btn").click(function () {
         onlineUserList.clear()
         updateOnlineUserList()
 
+        callList = []
+        updateCallList()
+
         camDevList = []
         micDevList = []
         spkDevList = []
@@ -395,8 +486,8 @@ $("#logout-btn").click(function () {
         updateAppState(0)
 
         hstRtcEngine.destroy()
-    }).catch(function () {
-        addSystemMsg("Logout failed!")
+    }).catch((e) => {
+        addSystemMsg("Logout failed!" + e)
     })
 })
 
@@ -410,7 +501,6 @@ $('#join-group-btn').click(function () {
 $("#leave-group-btn").click(function () {
     doLeaveGroup()
 })
-
 // 点击“开始广播”麦克风设备处理
 $('#mic-pub-btn').click(function () {
     let options = $('#mic-devs-sel')[0].options
@@ -421,7 +511,10 @@ $('#mic-pub-btn').click(function () {
 
     if (isPublishAudio) {
         hstRtcEngine.stopPublishMedia(MediaType.AUDIO)
-
+        // if(audioMange) {
+        //     audioMange.stop()
+        //     audioMange = null
+        // }
         // 更新用户列表广播状态
         groupUserList.get(window.userId).pubAudio = false
         updateGroupUserList()
@@ -432,8 +525,10 @@ $('#mic-pub-btn').click(function () {
         addSystemMsg("Stop publish audio device " + curMicDevId)
     } else {
         hstRtcEngine.startPublishMedia(MediaType.AUDIO, curMicDevId)
+       setTimeout(() => {
         displayAudioStats(window.userId, curMicDevId)
-
+       }, 1000)
+       
         // 更新用户列表广播状态
         groupUserList.get(window.userId).pubAudio = true
         updateGroupUserList()
@@ -598,11 +693,128 @@ $('.docInput').on('change', function (e) {
     })
 })
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // 订阅事件
 ////////////////////////////////////////////////////////////////////////////////
+
+// 呼叫请求（新协议）
+hstRtcEngine.subEvent('onIncommingCall', function(data) {
+    showIncommingModal();
+    $('#callee-modal-title').text("是否接受来自[" + data.callerId + "]的呼叫？");
+
+    $('#accept-call-btn').click(function() {
+        hideIncommingModal();
+        $('#accept-call-btn').unbind();
+        $('#reject-call-btn').unbind();
+
+        if (window.groupId) { // 已经在分组中
+            if (window.groupId == data.groupId) {
+                alert("已经在分组 " + data.groupId + " 中！");
+            } else { // 退出当前分组，再加入指定分组
+                // 先退出已有分组
+                doLeaveGroup()
+                // 由于无法得到doLeaveGroup的异步回调结果，这里Sleep几秒钟
+                sleep(1000).then(function() {
+                    doJoinGroup(data.groupId)
+                })
+            }
+        } else { // 未进入分组，直接加入指定分组
+            doJoinGroup(data.groupId)
+        }
+        curCallId = data.callId
+        hstRtcEngine.replyCall({
+            seqId: data.seqId,
+            callId: data.callId,
+            groupId: data.groupId,
+            result: 0
+        });
+    })
+
+    $('#reject-call-btn').click(function(data) {
+        hideIncommingModal();
+        $('#reject-call-btn').unbind();
+        $('#accept-call-btn').unbind();
+
+        hstRtcEngine.replyCall({
+            seqId: data.seqId,
+            callId: data.callId,
+            groupId: data.groupId,
+            result: 1
+        });
+    })
+})
+
+// 取消呼叫请求（新协议）
+hstRtcEngine.subEvent('onCancelCall', function(data) {
+    addSystemMsg("Cancel call: " + data.callId)
+})
+
+// 结束呼叫请求（新协议）
+hstRtcEngine.subEvent('onFinishCall', function(data) {
+    if (curCallId) {
+        if (data.callId == curCallId) {
+            onLeaveGroup();
+            updateAppState(2);
+        } else { // 错误的CallID
+            addSystemMsg("Notify to finish invalid call: " + data.callId);
+        }
+    } else {
+        addSystemMsg("Notify to finish none existing call: " + data.callId);
+    }
+})
+
+// 被叫主动结束呼叫（新协议）
+hstRtcEngine.subEvent('onCallFinished', function(data) {
+    updateCallState(data.callId, 3)
+    console.error("Cannot find finished call: " + data.callId);
+})
+
+// 通知拆线
+hstRtcEngine.subEvent('onCallRelease', function(data) {
+    curCallId = null;
+    hideIncommingModal();
+})
+
+// 呼叫结果通知（不需要响应）
+// 呼叫状态定义：
+// 0: 接收
+// 1: 拒绝
+// 2: 超时
+// 3: 主叫取消呼叫
+// 4: 主叫结束呼叫
+// 5: 被叫结束呼叫
+// 6: 通话超时
+// 99: 异常
+// 本地呼叫状态定义：
+// 0: Invalid
+// 1: 呼叫中
+// 2: 通话中
+// 3: 已结束
+// 4: 失败
+hstRtcEngine.subEvent('onCallResult', function(data) {
+    for (let i = 0; i < callList.length; i++) {
+        if (callList[i].callId == data.callId) {
+            if (callList[i].callState == 1) {
+                if (data.result == 0) {
+                    callList[i].callState = 2
+                    addSystemMsg("呼叫" + callList[i].calleeId + "成功");
+                } else {
+                    callList[i].callState = 4
+                    addSystemMsg("呼叫" + callList[i].calleeId + "失败");
+                }
+            } else if (callList[i].callState == 2) {
+                if (data.result == 4 || data.result == 5) {
+                    callList[i].callState = 3
+                } else {
+                    console.error("Unexpected call result: " + data.result);
+                }
+            } else {
+                console.error("Invalid call state " + callList[i].callState);
+            }
+        }
+    }
+    updateCallList()
+})
 
 // 点击了浏览器弹框的“停止共享”
 hstRtcEngine.subEvent('onScreenShareStopped', function(data) {
@@ -878,6 +1090,42 @@ function inviteJoinGroup(userId) {
     addSystemMsg("Send invite to user " + userId)
 }
 
+// 更新呼叫列表
+function updateCallList() {
+    $('#call-tbl').empty()
+    $('#call-tbl').append("<tr valign='middle' id='call-table-title-tr'>")
+    $('#call-table-title-tr').append("<th width='25%' valign='middle'>Call ID</th>")
+    $('#call-table-title-tr').append("<th width='14%' valign='middle'>Callee Type</th>")
+    $('#call-table-title-tr').append("<th width='25%' valign='middle'>Callee ID</th>")
+    $('#call-table-title-tr').append("<th width='12%' valign='middle'>Call Time</th>")
+    $('#call-table-title-tr').append("<th width='12%' valign='middle'>Call State</th>")
+    $('#call-table-title-tr').append("<th width='12%' valign='middle'>Operation</th>")
+
+    callList.forEach(function(item) {
+        $('#call-tbl').append("<tr valign='middle' id='" + item.callId + "'>")
+        $('#' + item.callId).append("<td valign='middle' class='call-line'>" + item.callId + "</td>")
+        $('#' + item.callId).append("<td valign='middle' class='call-line'>" + calleeTypeStr[item.calleeType] + "</td>")
+        $('#' + item.callId).append("<td valign='middle' class='call-line'>" + item.calleeId + "</td>")
+        $('#' + item.callId).append("<td valign='middle' class='call-line'>" + item.callTime + "</td>")
+        $('#' + item.callId).append("<td valign='middle' class='call-line'>" + callStateStr[item.callState] + "</td>")
+        if (item.callState == 1) { // 呼叫中
+            $('#' + item.callId).append("<td valign='middle' class='call-line'><button onclick='doCancelCall(\"" + item.callId + "\")'>取消呼叫</button></td>")
+        } else if (item.callState == 2) { // 通话中
+            $('#' + item.callId).append("<td valign='middle' class='call-line'><button onclick='doFinishCall(\"" + item.callId + "\")'>结束呼叫</button></td>")
+        } else {
+            $('#' + item.callId).append("<td valign='middle' class='call-line'><button onclick='removeCall(\"" + item.callId + "\")'>删除呼叫</button></td>")
+        }
+    })
+
+    if (window.userId) {
+        $('#create-call-btn').removeAttr("disabled")
+        $('#create-call-btn').css("background-color", "rgb(106,125,254)")
+    } else {
+        $('#create-call-btn').attr("disabled", "disabled")
+        $('#create-call-btn').css("background-color", "rgb(193,193,193)")
+    }
+}
+
 // 更新在线用户列表
 function updateOnlineUserList() {
     $('#online-users-tbl').empty()
@@ -904,7 +1152,7 @@ function updateOnlineUserList() {
             $('#' + nodeId).append("<td valign='middle' class='user-line'>在线</td>")
 
             if (key !== window.userId) {
-                $('#' + nodeId).append("<td valign='middle' class='user-line'><button disabled='disabled' class='invite-btn' onclick='inviteJoinGroup(" + key + ")'>邀请</button></td>")
+                $('#' + nodeId).append("<td valign='middle' class='user-line'><button disabled='disabled' class='invite-btn' onclick='inviteJoinGroup(\"" + key + "\")'>邀请</button></td>")
             } else {
                 $('#' + nodeId).append("<td valign='middle' class='user-line'></td>")
             }
@@ -942,14 +1190,16 @@ function getUserNickName(userId) {
     return ""
 }
 
+// 获取系统时间
+function getSystemTime() {
+    var curTime = new Date
+    return curTime.getHours() + ":" + curTime.getMinutes() + ":" + curTime.getSeconds()
+}
+
 // 添加系统消息
 function addSystemMsg(msg) {
     var curTime = new Date
-    let fullMsg = curTime.getHours() +
-        ":" + curTime.getMinutes() +
-        ":" + curTime.getSeconds() +
-        " 系统消息：" + "\r\n" +
-        msg + "\r\n\r\n"
+    let fullMsg = getSystemTime() + " 系统消息：" + "\r\n" + msg + "\r\n\r\n"
     allMsg += fullMsg
     $('#all-msg-ta').text(allMsg)
     $('#all-msg-ta').scrollTop($('#all-msg-ta')[0].scrollHeight)
@@ -1119,10 +1369,10 @@ function displayScreenShareStats(panel) {
         $('#share-video-label-' + userData).html(videoInfo)
     }, 1000, panel.index)
 }
-
+let hehe = null
 // 显示视频统计数据
 function displayVideoStats(panel) {
-    hstRtcEngine.getStreamStats({
+    hehe = hstRtcEngine.getStreamStats({
         userId: panel.userId,
         mediaType: MediaType.VIDEO,
         mediaId: panel.videoId
@@ -1227,6 +1477,15 @@ function loadMediaDevList() {
         console.error(err)
         addSystemMsg("Load media device failed!", err)
     })
+}
+
+function getVideoPanelByVideoId (userId, mediaId) {
+    for (const panel of videoPanels) {
+        if (panel.used && panel.userId == userId && panel.videoId == mediaId) {
+            return panel
+        }
+    }
+    return null
 }
 
 // 通过用户是否广播音频查询Panel
@@ -1555,10 +1814,11 @@ function onLeaveGroup() {
     groupUserList.clear()
     updateGroupUserList()
 
-    window.isPublishAudio = false
-    window.isScreenSharing = false
+    isPublishAudio = false
+    isScreenSharing = false
     window.groupId = ""
     window.wbPageInfoMap = new Map()
+    window.curCallId = null
 
     hideCamMenu()
     refreshDataAndUI()
@@ -1593,7 +1853,10 @@ function initSettingUI() {
     $('#recv-magic-sel').val(recvMagicAudioMode)
     $('#magic-audio-slider').val(sendMagicAudioValue)
     $('#magic-audio-text').text(sendMagicAudioValue)
-
+    if (magicAudioSwitch) {
+        $('#app-cfg-magic').attr('checked', magicAudioSwitch)
+        hstRtcEngine.setMagicAudioSwitch(magicAudioSwitch)
+    }
     // Video
     if (useUserDefineVideoSetting) {
         $('#video-cbx').attr('checked', useUserDefineVideoSetting)
@@ -1771,7 +2034,9 @@ function startPubLocalCam(mediaId) {
     groupUserList.get(window.userId).pubVideo = true
     updateGroupUserList()
 
-    displayVideoStats(newVideoPanel)
+    setTimeout(() => {
+        displayVideoStats(newVideoPanel)
+    }, 1000)
 
     updateVideoPanelLayout()
 
@@ -1799,6 +2064,9 @@ function loadSettings() {
         userDefineServerAddr = localStorage.getItem("userDefineServerAddr")
     }
 
+    if (localStorage.getItem('magicAudioSwitch')) {
+        magicAudioSwitch = localStorage.getItem("magicAudioSwitch") === 'true' ? true : false;
+    }
     // other
     forceLogin = (localStorage.getItem("forceLogin") == "true")
     if (localStorage.getItem("recvMagicAudioMode")) {
@@ -1871,6 +2139,7 @@ function storeSettings() {
     localStorage.setItem("forceLogin", forceLogin)
     localStorage.setItem("recvMagicAudioMode", recvMagicAudioMode)
     localStorage.setItem("sendMagicAudioValue", sendMagicAudioValue)
+    localStorage.setItem('magicAudioSwitch', magicAudioSwitch)
 
     // Audio
     localStorage.setItem("curMicDevId", curMicDevId)
@@ -1926,6 +2195,7 @@ function doJoinGroup(groupId) {
 
         $('#mic-pub-btn').css("background-color", "rgb(106,125,254)")
         $('#cam-pub-btn').css("background-color", "rgb(106,125,254)")
+        $('#call-btn').css("background-color", "rgb(106,125,254)")
         $('#screen-share-btn').css("background-color", "rgb(106,125,254)")
 
         $('.createBoard').css("background-color", "rgb(106,125,254)")
@@ -2045,8 +2315,8 @@ function onAudioMediaAdd(params) {
 
 // 收到视频数据处理
 function onVideoMediaAdd(params) {
-    // 如果已经在接收此用户的音频，不用重复设置render
-    let videoPanel = getVideoPanelByUserAudio(params.userId)
+
+    let videoPanel = getVideoPanelByVideoId(params.userId, params.mediaId)
     if (!videoPanel) {
         videoPanel = getAvailableVideoPanel()
         if (!videoPanel) {
@@ -2446,3 +2716,69 @@ function toggleMaxPanel() {
     }
 }
 
+// 从呼叫列表中移除指定呼叫
+function removeCall(callId) {
+    for (let i = 0; i < callList.length; i++) {
+        if (callList[i].callId == callId) {
+            callList.splice(i, 1)
+            break
+        }
+    }
+    updateCallList()
+}
+
+// 取消呼叫
+function doCancelCall(callId) {
+    hstRtcEngine.cancelCall(callId).then((data) => {
+        addSystemMsg("取消呼叫成功")
+        removeCall(callId)
+    }).catch(() => {
+        addSystemMsg("取消呼叫失败")
+        updateCallState(callId, 4)
+    })
+}
+
+function updateCallState(callId, state)
+{
+    for (let i = 0; i < callList.length; i++) {
+        if (callList[i].callId == callId) {
+            callList[i].callState = state;
+            break
+        }
+    }
+    updateCallList()
+}
+
+// 结束呼叫
+function doFinishCall(callId) {
+    hstRtcEngine.finishCall(callId).then((data) => {
+        addSystemMsg("结束呼叫成功")
+        updateCallState(callId, 3)
+    }).catch(() => {
+        addSystemMsg("结束呼叫失败")
+    })
+}
+
+function showIncommingModal() {
+    let e1 = document.getElementById('callee-modal-overlay');
+    if (!e1.style.visibility || e1.style.visibility == 'hidden') {
+        e1.style.visibility = 'visible';    
+    }
+
+    let e2 = document.getElementById('callee-modal-data');
+    if (!e2.style.visibility || e2.style.visibility == 'hidden') {
+        e2.style.visibility = 'visible';
+    }
+}
+
+function hideIncommingModal() {
+    let e1 = document.getElementById('callee-modal-overlay');
+    if (e1.style.visibility == 'visible') {
+        e1.style.visibility = 'hidden';    
+    }
+
+    let e2 = document.getElementById('callee-modal-data');
+    if (e2.style.visibility == 'visible') {
+        e2.style.visibility = 'hidden';
+    }
+}

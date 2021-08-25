@@ -9,10 +9,52 @@
     <link href="./index.css" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="fav.ico" type="image/x-icon" />
     <script src="jquery-3.2.1.min.js"></script>
-    <script src="hst-rtc-engine-2.1.0.js"></script>
+    <script src="https://static-live.hst.com/webapp_sdk/hst-rtc-engine-2.1.5.js"></script>
 </head>
 
 <body style="background-color: honeydew; padding: 0; margin: 0">
+    <!-- 被叫模态对话框遮罩层 -->
+    <div id="callee-modal-overlay" class="modal-overlay"></div>
+    <!-- 被叫模态对话框 -->
+    <div id="callee-modal-data">
+        <div id="callee-modal-title" style="margin-top: 20px;"></div>
+        <div style="margin-top: 20px;">
+            <button id="reject-call-btn">拒绝</button>
+            <button id="accept-call-btn">接受</button>
+        </div>
+    </div>
+
+    <!-- 模态对话框遮罩层 -->
+    <div id="call-modal-overlay" class="modal-overlay"></div>
+    <!-- 呼叫模态对话框 -->
+    <div id="call-modal-data">
+        <div class="call-type-layer">
+            <span class="call-label">呼叫类型：</span>
+            <div class="call-label">
+                <select id="callee-type-sel">
+                    <option value="1">电话呼叫</option>
+                    <option value="4">在线呼叫</option>
+                </select>
+            </div>
+        </div>
+        <div class="callee-id-layer">
+            <span class="call-label">呼叫标识：</span>
+            <div class="call-label">
+                <input id="callee-id-input" />
+            </div>
+        </div>
+        <div class="group-id-layer">
+            <span class="call-label">分组标识：</span>
+            <div class="call-label">
+                <input id="group-id-input" />
+            </div>
+        </div>
+        <div class="call-btn-layer">
+            <button id="cancel-call-btn" class="call-btn">取消</button>
+            <button id="confirm-call-btn" class="call-btn">确认</button>
+        </div>
+    </div>
+    <!-- 左边栏 -->
     <div class="left">
         <div style="height: 20%;" class="left-panel">
             <div class="left-panel-layout">
@@ -72,8 +114,9 @@
             <button class="tab" id="tab-btn-0" style="color: white">音视频</button>
             <button class="tab" id="tab-btn-1">屏幕共享</button>
             <button class="tab" id="tab-btn-2">在线</button>
-            <button class="tab" id="tab-btn-3">白板</button>
-            <button class="tab" id="tab-btn-4">设置</button>
+            <button class="tab" id="tab-btn-3">呼叫</button>
+            <button class="tab" id="tab-btn-4">白板</button>
+            <button class="tab" id="tab-btn-5">设置</button>
             <div style="display:flex; align-items:center; height: 100%">
                 <span id="inner-title" class="inner-title">好视通云通信MeetingDemo</span>
             </div>
@@ -170,8 +213,18 @@
                     </div>
                 </div>
             </div>
+            <!-- 呼叫 -->
+            <div id="tab4" class="online-tab">
+                <div class="call-tbl-panel">
+                    <table id="call-tbl" width="100%" class="online-table" align="center">
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: center; padding-top: 10px; padding-bottom: 10px; padding-right: 5px;">
+                    <button id="create-call-btn" disabled="disabled">创建呼叫</button>
+                </div>
+            </div>
             <!-- 白板-->
-            <div id="tab4" class="setting-tab">
+            <div id="tab5" class="setting-tab">
                 <!-- Tab -->
                 <div class="board-tab">
                     <div class="board-tab-box">
@@ -185,6 +238,7 @@
                     <div class="edit-btn btn" style="display: none">标注</div>
                     <div class="btn-group" style="display: none">
                         <div class="type_btn_group">
+                            <div class="btn line_btn" data-value="gmov">选择</div>
                             <div class="btn line_btn" data-value="eraser">橡皮檫</div>
                             <div class="btn line_btn" data-value="line">直线</div>
                             <div class="btn curve_btn" data-value="curve">曲线</div>
@@ -218,7 +272,7 @@
                 </div>
             </div>
             <!-- 设置 -->
-            <div id="tab5" class="setting-tab">
+            <div id="tab6" class="setting-tab">
                 <div style="text-align: center; color: orange; margin-top: 10px">【注意】由于部分设置修改后需要刷新页面才能生效，为确保设置生效，建议修改任意设置后立即刷新页面！</div>
                 <div class="setting-tab-box">
                     <!-- Tab -->
@@ -302,6 +356,9 @@
                             </div>
                             <div class="setting-panel-title">
                                 <span>&nbsp;&nbsp;变声</span>
+                                <div>
+                                    <input type="checkbox" class="setting-checkbox" id="app-cfg-magic" />
+                                </div>
                             </div>
                             <div class="setting-panel" id="magic-setting-panel">
                                 <div style="display: flex; margin-top: 10px">                            
